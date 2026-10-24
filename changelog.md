@@ -1,5 +1,11 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.1 — 2026-10-24
+
+Version de vérification du canal de mise à jour GitHub. Aucun changement fonctionnel : seul le numéro de version
+change, afin de contrôler que la détection et l'application d'une mise à jour se font correctement depuis un dépôt
+GitHub (le plugin installé passe de 0.1.0 à 0.1.1 sans perdre ses réglages ni ses reliages).
+
 ## 0.1.0 — 2026-10-07
 
 Première version publique. Brique **Entrées**.
