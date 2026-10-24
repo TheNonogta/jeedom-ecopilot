@@ -1,0 +1,27 @@
+/* This file is part of Jeedom. Licence AGPL.
+ *
+ * Éco Pilot — uniquement le strict nécessaire : le reste vient des classes du cœur.
+ * Aucune couleur n'est définie ici : la page suit le thème actif (clair ou sombre).
+ */
+
+/* Le thème Jeedom ne reprend pas ces deux règles de Bootstrap :
+   le titre de panneau resterait sombre sur fond sombre, et le pied de panneau
+   garderait un fond clair avec le texte du thème (gris sur gris). */
+.ecopilot .panel-heading {
+	color: inherit;
+}
+
+.ecopilot .panel-footer {
+	background-color: transparent;
+}
+
+/* Carte de sonde : le pied reste aligné même quand la carte est plus courte. */
+.ecopilot .panel-body .row > div {
+	margin-bottom: 5px;
+}
+
+/* Liste des grandeurs dans la modale du catalogue. */
+#md_catalogue .ep_catItem button {
+	width: 100%;
+	text-align: left;
+}

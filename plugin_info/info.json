@@ -1,0 +1,28 @@
+{
+  "id": "ecopilot",
+  "name": "Éco Pilot",
+  "description": "Suivre les valeurs d'entrée de la maison (sondes, pièces, moyennes) et, à terme, piloter éclairage, chauffage et volets pour économiser l'énergie. Le plugin ne parle à aucun matériel : il lit et pilote les commandes de vos équipements existants.",
+  "licence": "AGPL",
+  "author": "Arnaud Pelletier",
+  "require": "4.4",
+  "category": "energy",
+  "version": "0.1.0",
+  "changelog": "https://github.com/TheNonogta/jeedom-ecopilot/blob/main/changelog.md",
+  "documentation": "https://github.com/TheNonogta/jeedom-ecopilot#readme",
+  "branch": "main",
+  "language": [
+    "fr_FR"
+  ],
+  "compatibility": [
+    "miniplus",
+    "smart",
+    "rpi",
+    "docker",
+    "diy",
+    "mobile",
+    "v4"
+  ],
+  "hasDependency": false,
+  "hasOwnDeamon": false,
+  "maxDependancyInstallTime": 0
+}

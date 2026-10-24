@@ -1,0 +1,494 @@
+{
+ "families": [
+  {
+   "key": "climat",
+   "label": "Température & climat intérieur",
+   "icon": "fas fa-thermometer-half",
+   "grandeurs": [
+    {
+     "key": "temperature",
+     "label": "Température",
+     "type": "numeric",
+     "unit": "°C",
+     "icon": "fas fa-thermometer-half"
+    },
+    {
+     "key": "ressenti",
+     "label": "Température ressentie (humidex)",
+     "type": "numeric",
+     "unit": "°C",
+     "icon": "fas fa-temperature-high"
+    },
+    {
+     "key": "hygrometrie",
+     "label": "Hygrométrie (humidité relative)",
+     "type": "numeric",
+     "unit": "%",
+     "icon": "fas fa-tint"
+    },
+    {
+     "key": "humidite_absolue",
+     "label": "Humidité absolue",
+     "type": "numeric",
+     "unit": "g/m³",
+     "icon": "fas fa-water"
+    },
+    {
+     "key": "point_rosee",
+     "label": "Point de rosée",
+     "type": "numeric",
+     "unit": "°C",
+     "icon": "fas fa-snowflake"
+    },
+    {
+     "key": "pression",
+     "label": "Pression atmosphérique",
+     "type": "numeric",
+     "unit": "hPa",
+     "icon": "fas fa-compress-arrows-alt"
+    }
+   ]
+  },
+  {
+   "key": "air",
+   "label": "Qualité de l'air",
+   "icon": "fas fa-wind",
+   "grandeurs": [
+    {
+     "key": "co2",
+     "label": "Dioxyde de carbone (CO₂)",
+     "type": "numeric",
+     "unit": "ppm",
+     "icon": "fas fa-lungs"
+    },
+    {
+     "key": "cov",
+     "label": "Composés organiques volatils (COV)",
+     "type": "numeric",
+     "unit": "ppb",
+     "icon": "fas fa-flask"
+    },
+    {
+     "key": "hcho",
+     "label": "Formaldéhyde (HCHO)",
+     "type": "numeric",
+     "unit": "µg/m³",
+     "icon": "fas fa-vial"
+    },
+    {
+     "key": "pm1",
+     "label": "Particules fines PM1",
+     "type": "numeric",
+     "unit": "µg/m³",
+     "icon": "fas fa-smog"
+    },
+    {
+     "key": "pm25",
+     "label": "Particules fines PM2.5",
+     "type": "numeric",
+     "unit": "µg/m³",
+     "icon": "fas fa-smog"
+    },
+    {
+     "key": "pm10",
+     "label": "Particules fines PM10",
+     "type": "numeric",
+     "unit": "µg/m³",
+     "icon": "fas fa-smog"
+    },
+    {
+     "key": "co",
+     "label": "Monoxyde de carbone (CO)",
+     "type": "numeric",
+     "unit": "ppm",
+     "icon": "fas fa-biohazard"
+    },
+    {
+     "key": "aqi",
+     "label": "Indice de qualité de l'air (AQI)",
+     "type": "numeric",
+     "unit": "indice",
+     "icon": "fas fa-heartbeat"
+    },
+    {
+     "key": "radon",
+     "label": "Radon",
+     "type": "numeric",
+     "unit": "Bq/m³",
+     "icon": "fas fa-radiation"
+    }
+   ]
+  },
+  {
+   "key": "lumiere",
+   "label": "Lumière",
+   "icon": "fas fa-sun",
+   "grandeurs": [
+    {
+     "key": "eclairement",
+     "label": "Éclairement (luminosité)",
+     "type": "numeric",
+     "unit": "lx",
+     "icon": "fas fa-sun"
+    },
+    {
+     "key": "luminance",
+     "label": "Luminance",
+     "type": "numeric",
+     "unit": "cd/m²",
+     "icon": "fas fa-lightbulb"
+    },
+    {
+     "key": "uv",
+     "label": "Indice UV",
+     "type": "numeric",
+     "unit": "indice",
+     "icon": "fas fa-sun"
+    },
+    {
+     "key": "rayonnement_solaire",
+     "label": "Rayonnement solaire",
+     "type": "numeric",
+     "unit": "W/m²",
+     "icon": "fas fa-solar-panel"
+    },
+    {
+     "key": "temperature_couleur",
+     "label": "Température de couleur de la lumière",
+     "type": "numeric",
+     "unit": "K",
+     "icon": "fas fa-thermometer-quarter"
+    }
+   ]
+  },
+  {
+   "key": "meteo",
+   "label": "Météo extérieure",
+   "icon": "fas fa-cloud-sun-rain",
+   "grandeurs": [
+    {
+     "key": "vent",
+     "label": "Vitesse du vent",
+     "type": "numeric",
+     "unit": "km/h",
+     "icon": "fas fa-wind"
+    },
+    {
+     "key": "rafales",
+     "label": "Rafales",
+     "type": "numeric",
+     "unit": "km/h",
+     "icon": "fas fa-wind"
+    },
+    {
+     "key": "vent_direction",
+     "label": "Direction du vent",
+     "type": "numeric",
+     "unit": "°",
+     "icon": "fas fa-compass"
+    },
+    {
+     "key": "pluie_intensite",
+     "label": "Pluie (intensité)",
+     "type": "numeric",
+     "unit": "mm/h",
+     "icon": "fas fa-cloud-showers-heavy"
+    },
+    {
+     "key": "pluie_cumul",
+     "label": "Pluie (cumul)",
+     "type": "numeric",
+     "unit": "mm",
+     "icon": "fas fa-cloud-rain"
+    },
+    {
+     "key": "neige",
+     "label": "Neige",
+     "type": "numeric",
+     "unit": "cm",
+     "icon": "fas fa-snowflake"
+    },
+    {
+     "key": "temperature_sol",
+     "label": "Température du sol",
+     "type": "numeric",
+     "unit": "°C",
+     "icon": "fas fa-seedling"
+    },
+    {
+     "key": "humidite_sol",
+     "label": "Humidité du sol",
+     "type": "numeric",
+     "unit": "%",
+     "icon": "fas fa-seedling"
+    },
+    {
+     "key": "ciel",
+     "label": "Ensoleillement / état du ciel",
+     "type": "string",
+     "unit": "",
+     "icon": "fas fa-cloud-sun"
+    }
+   ]
+  },
+  {
+   "key": "energie",
+   "label": "Énergie & consommation",
+   "icon": "fas fa-bolt",
+   "grandeurs": [
+    {
+     "key": "puissance",
+     "label": "Puissance instantanée",
+     "type": "numeric",
+     "unit": "W",
+     "icon": "fas fa-bolt"
+    },
+    {
+     "key": "puissance_apparente",
+     "label": "Puissance apparente",
+     "type": "numeric",
+     "unit": "VA",
+     "icon": "fas fa-plug"
+    },
+    {
+     "key": "energie_index",
+     "label": "Énergie (index compteur)",
+     "type": "numeric",
+     "unit": "kWh",
+     "icon": "fas fa-tachometer-alt"
+    },
+    {
+     "key": "energie_hp",
+     "label": "Énergie heures pleines",
+     "type": "numeric",
+     "unit": "kWh",
+     "icon": "fas fa-clock"
+    },
+    {
+     "key": "energie_hc",
+     "label": "Énergie heures creuses",
+     "type": "numeric",
+     "unit": "kWh",
+     "icon": "fas fa-moon"
+    },
+    {
+     "key": "energie_produite",
+     "label": "Énergie produite (solaire…)",
+     "type": "numeric",
+     "unit": "kWh",
+     "icon": "fas fa-solar-panel"
+    },
+    {
+     "key": "tension",
+     "label": "Tension",
+     "type": "numeric",
+     "unit": "V",
+     "icon": "fas fa-bolt"
+    },
+    {
+     "key": "courant",
+     "label": "Courant (intensité)",
+     "type": "numeric",
+     "unit": "A",
+     "icon": "fas fa-bolt"
+    },
+    {
+     "key": "frequence",
+     "label": "Fréquence",
+     "type": "numeric",
+     "unit": "Hz",
+     "icon": "fas fa-wave-square"
+    },
+    {
+     "key": "facteur_puissance",
+     "label": "Facteur de puissance",
+     "type": "numeric",
+     "unit": "%",
+     "icon": "fas fa-percentage"
+    },
+    {
+     "key": "ecs",
+     "label": "Température d'eau chaude (ECS)",
+     "type": "numeric",
+     "unit": "°C",
+     "icon": "fas fa-hot-tub"
+    },
+    {
+     "key": "batterie",
+     "label": "Niveau de batterie",
+     "type": "numeric",
+     "unit": "%",
+     "icon": "fas fa-battery-half"
+    },
+    {
+     "key": "cout",
+     "label": "Coût (tarif appliqué)",
+     "type": "numeric",
+     "unit": "€",
+     "icon": "fas fa-euro-sign"
+    }
+   ]
+  },
+  {
+   "key": "eau_gaz",
+   "label": "Eau & gaz",
+   "icon": "fas fa-tint",
+   "grandeurs": [
+    {
+     "key": "eau_index",
+     "label": "Volume d'eau (index)",
+     "type": "numeric",
+     "unit": "m³",
+     "icon": "fas fa-tint"
+    },
+    {
+     "key": "eau_debit",
+     "label": "Débit d'eau",
+     "type": "numeric",
+     "unit": "L/h",
+     "icon": "fas fa-water"
+    },
+    {
+     "key": "eau_pression",
+     "label": "Pression d'eau",
+     "type": "numeric",
+     "unit": "bar",
+     "icon": "fas fa-gauge"
+    },
+    {
+     "key": "gaz_index",
+     "label": "Volume de gaz (index)",
+     "type": "numeric",
+     "unit": "m³",
+     "icon": "fas fa-fire"
+    },
+    {
+     "key": "gaz_debit",
+     "label": "Débit de gaz",
+     "type": "numeric",
+     "unit": "m³/h",
+     "icon": "fas fa-fire"
+    }
+   ]
+  },
+  {
+   "key": "securite",
+   "label": "Présence, sécurité, divers",
+   "icon": "fas fa-shield-alt",
+   "grandeurs": [
+    {
+     "key": "presence",
+     "label": "Présence",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-user-check"
+    },
+    {
+     "key": "mouvement",
+     "label": "Mouvement",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-running"
+    },
+    {
+     "key": "ouverture",
+     "label": "Ouverture / contact",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-door-open"
+    },
+    {
+     "key": "fumee",
+     "label": "Fumée",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-fire-extinguisher"
+    },
+    {
+     "key": "fuite_eau",
+     "label": "Fuite d'eau",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-tint-slash"
+    },
+    {
+     "key": "fuite_gaz",
+     "label": "Fuite de gaz",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-biohazard"
+    },
+    {
+     "key": "vibration",
+     "label": "Vibration",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-wave-square"
+    },
+    {
+     "key": "bruit",
+     "label": "Niveau sonore",
+     "type": "numeric",
+     "unit": "dB",
+     "icon": "fas fa-volume-up"
+    },
+    {
+     "key": "distance",
+     "label": "Distance / proximité",
+     "type": "numeric",
+     "unit": "cm",
+     "icon": "fas fa-ruler-horizontal"
+    },
+    {
+     "key": "niveau",
+     "label": "Niveau (cuve, réservoir, silo)",
+     "type": "numeric",
+     "unit": "%",
+     "icon": "fas fa-fill-drip"
+    },
+    {
+     "key": "personnes",
+     "label": "Nombre de personnes",
+     "type": "numeric",
+     "unit": "",
+     "icon": "fas fa-users"
+    },
+    {
+     "key": "impulsions",
+     "label": "Compteur d'impulsions",
+     "type": "numeric",
+     "unit": "",
+     "icon": "fas fa-sort-numeric-up"
+    },
+    {
+     "key": "etat_equipement",
+     "label": "État d'un équipement",
+     "type": "binary",
+     "unit": "",
+     "icon": "fas fa-toggle-on"
+    },
+    {
+     "key": "position",
+     "label": "Position (GPS)",
+     "type": "string",
+     "unit": "lat, lon",
+     "icon": "fas fa-map-marker-alt"
+    },
+    {
+     "key": "derniere_vue",
+     "label": "Dernière vue / dernière activité",
+     "type": "string",
+     "unit": "",
+     "icon": "fas fa-history"
+    },
+    {
+     "key": "personnalisee",
+     "label": "Grandeur personnalisée — ton nom, ton unité, ton type",
+     "type": "custom",
+     "unit": "",
+     "icon": "fas fa-plus"
+    }
+   ]
+  }
+ ]
+}

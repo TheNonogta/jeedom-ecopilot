@@ -1,0 +1,17 @@
+# Fichiers locaux et temporaires
+*.log
+*.bak
+*.bak_*
+*.tgz
+*.zip
+.DS_Store
+Thumbs.db
+
+# Dossier de travail du développeur (non publié)
+_dev/
+captures/
+jeedom-core/
+webfonts/
+maquette-*.html
+*.png
+!plugin_info/ecopilot_icon.png
