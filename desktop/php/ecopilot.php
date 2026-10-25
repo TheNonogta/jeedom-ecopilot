@@ -26,6 +26,17 @@ $sim = ecopilot_sim::ensure();
 $sondeSel = ecopilot_sonde::byId(init('sonde_id'));
 $pieceSel = ecopilot_piece::byId(init('piece_id'));
 
+/* La fiche d'une sonde relit toujours ses sources avant de s'afficher : après une mise à jour
+ * ou un reliage, on ne montre jamais une valeur calculée par une version précédente. */
+if (is_object($sondeSel) && init('norefresh', 0) != 1) {
+	try {
+		ecopilot::refreshSonde($sondeSel);
+		$sondeSel->refresh();
+	} catch (Throwable $e) {
+		ecopilot::log('relecture à l\'affichage impossible : ' . $e->getMessage());
+	}
+}
+
 $nbGrandeurs = 0;
 $nbARelie = 0;
 $nbMuettes = 0;
@@ -414,10 +425,10 @@ function ecopilot_pickIcone($_class, $_value) {
 							echo '#' . $srcId . ' · ';
 							echo ($srcVal === '' || $srcVal === null) ? '{{vide}}' : htmlspecialchars($srcVal);
 							echo ' ' . htmlspecialchars($srcCmd->getUnite());
-							if ($srcVal === '' || $srcVal === null) {
-								$h = ecopilot::lastHistoValue($srcCmd);
-								echo ' · {{histo}} ' . ($h === '' ? '{{aucun}}' : htmlspecialchars($h));
-							}
+							$h = ecopilot::lastHistoValue($srcCmd);
+							echo ' · {{histo}} ' . ($h === '' ? '{{aucun}}' : htmlspecialchars($h));
+							$readSrc = ecopilot::readSources($sondeSel, $key, $conf, $def);
+							echo ' · {{lu maintenant}} ' . htmlspecialchars(json_encode($readSrc['nums'] != array() ? $readSrc['nums'] : $readSrc['bools']));
 							echo '<br>';
 						}
 					?></small></td>

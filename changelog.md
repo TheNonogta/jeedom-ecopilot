@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.7 — 2026-10-25
+
+- La **fiche d'une sonde relit ses sources à chaque affichage** : après une mise à jour du plugin ou un reliage, la
+  page ne peut plus montrer une valeur calculée par une version précédente (le paramètre `&norefresh=1` désactive
+  cette relecture).
+- La colonne « Source lue » affiche en plus la **lecture faite maintenant** (`lu maintenant : [24.9]`), à côté de la
+  valeur stockée dans la commande source : on voit immédiatement si la valeur affichée est fraîche ou figée.
+
 ## 0.1.6 — 2026-10-25
 
 Correctif de fond : une commande source peut être **une commande virtuelle** dont la valeur est une référence du cœur

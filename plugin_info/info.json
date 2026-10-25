@@ -6,7 +6,7 @@
   "author": "Arnaud Pelletier",
   "require": "4.4",
   "category": "energy",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "changelog": "https://github.com/TheNonogta/jeedom-ecopilot/blob/main/changelog.md",
   "documentation": "https://github.com/TheNonogta/jeedom-ecopilot#readme",
   "branch": "main",
