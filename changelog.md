@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.8 — 2026-10-25
+
+Cas des équipements **virtuels** : leur commande garde le texte de la référence (`#1083#`) dans la colonne `value`
+alors que la mesure réelle est écrite dans l'**historique** (le cœur 4.6.x ne réécrit pas `value` sur un `event()`).
+Quand une référence ne peut pas être résolue — commande cible absente après une nouvelle inclusion, par exemple —
+Éco Pilot reprend désormais la dernière valeur de l'historique de la commande elle-même.
+
+Une valeur qui ne correspond plus à aucune source est effacée (au lieu de laisser à l'écran un nombre périmé comme
+1 081 °C) : la fiche affiche `—` et l'état `à relier`/`source muette` dit pourquoi.
+
 ## 0.1.7 — 2026-10-25
 
 - La **fiche d'une sonde relit ses sources à chaque affichage** : après une mise à jour du plugin ou un reliage, la

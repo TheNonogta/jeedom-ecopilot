@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.7';
+	const VERSION = '0.1.8';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -448,8 +448,11 @@ class ecopilot {
 			/* Référence du cœur (« #1083# ») : on va chercher la vraie mesure, et sa date. */
 			$mesure = self::refCmd($cmd, $raw);
 			$raw = self::resolveRef($raw);
-			if (preg_match('/#\d+#/', (string) $raw)) {
-				$raw = '';
+			if ($raw === '' || $raw === null || preg_match('/#\d+#/', (string) $raw)) {
+				/* Référence non résoluble (commande cible absente ou vide) : sur les commandes
+				 * d'un équipement virtuel, la valeur résolue est dans l'historique de la commande
+				 * elle-même, pas dans sa colonne `value` qui garde le texte « #1083# ». */
+				$raw = self::lastHistoValue($cmd);
 			}
 			if ($_def['type'] == 'binary') {
 				$bools[] = self::toBool($raw);
@@ -570,6 +573,11 @@ class ecopilot {
 			$result = self::computeGrandeur($key, $conf, $def, $read);
 			if ($result['value'] !== null) {
 				self::posCmdValue($cmds['value'], $result['value']);
+			} elseif ($cmds['value']->getValue() !== '' && $cmds['value']->getValue() !== null) {
+				/* Plus rien à calculer : on efface une valeur périmée plutôt que de laisser
+				 * à l'écran un nombre qui ne correspond plus à aucune source. */
+				$cmds['value']->setValue('');
+				$cmds['value']->save();
 			}
 			self::posCmdValue($cmds['age'], $result['age'] !== null ? $result['age'] : '');
 			self::posCmdValue($cmds['muette'], isset($result['muette']) ? $result['muette'] : 0);
