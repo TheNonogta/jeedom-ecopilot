@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.3 — 2026-10-25
+
+Correctif : une sonde reliée à une commande dont la colonne `value` est vide affichait « — » alors que la source
+remontait bien. C'est le cas de certains modules, et du cœur 4.6.1 lui-même, qui alimentent l'historique sans
+remplir la valeur de la commande. La lecture reprend désormais **la dernière valeur de l'historique** quand la
+valeur courante est vide (la fraîcheur reste calculée sur la même date, donc l'état « source muette » ne change pas).
+
+Ajout d'un repère de diagnostic dans « Valeurs lues et état » : quand rien n'est calculé, la ligne affiche la valeur
+brute de la commande source et celle de son historique, pour distinguer « source vide » de « source muette ».
+
 ## 0.1.2 — 2026-10-24
 
 Icônes de pièce : catalogue de **54 icônes** couvrant les pièces d'une maison — pièces de vie (salon, séjour, salle à

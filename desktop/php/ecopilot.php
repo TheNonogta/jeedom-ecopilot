@@ -396,7 +396,26 @@ function ecopilot_pickIcone($_class, $_value) {
 						?>
 					<tr>
 						<td><?php echo htmlspecialchars($def['label']); ?></td>
-						<td><?php echo ecopilot_aff(is_object($cmd) ? $cmd->getValue() : '', 1); ?> <small><?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : ''; ?></small></td>
+						<td><?php echo ecopilot_aff(is_object($cmd) ? $cmd->getValue() : '', 1); ?> <small><?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : ''; ?></small>
+						<?php
+						/* Repère de diagnostic : quand rien n'est calculé, on montre ce que porte
+						 * réellement la commande source (utile si un module écrit ailleurs). */
+						if (is_object($cmd) && ($cmd->getValue() === '' || $cmd->getValue() === null)) {
+							$srcs = $sondeSel->getSources($key);
+							if (count($srcs)) {
+								$srcCmd = cmd::byId($srcs[0]);
+								if (is_object($srcCmd)) {
+									$brut = $srcCmd->getValue();
+									$histo = ecopilot::lastHistoValue($srcCmd);
+									echo '<div><small class="text-warning">{{source}} : '
+										. (($brut === '' || $brut === null) ? '{{vide}}' : htmlspecialchars($brut))
+										. ' · {{historique}} : ' . ($histo === '' ? '{{aucun}}' : htmlspecialchars($histo))
+										. '</small></div>';
+								}
+							}
+						}
+						?>
+					</td>
 						<td><?php echo count($sondeSel->getSources($key)); ?></td>
 						<td><?php echo is_object($age) && $age->getValue() !== '' ? intval($age->getValue()) . ' min' : '—'; ?></td>
 						<td><?php echo (is_object($muette) && $muette->getValue() == 1) ? '<span class="label label-warning">{{oui}}</span>' : '<span class="label label-success">{{non}}</span>'; ?></td>

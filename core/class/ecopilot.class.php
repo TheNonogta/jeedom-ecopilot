@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.2';
+	const VERSION = '0.1.3';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -357,6 +357,21 @@ class ecopilot {
 		return ($date === '' || $date === null) ? null : $date;
 	}
 
+	/**
+	 * Dernière valeur de l'historique d'une commande ('' s'il n'y en a pas).
+	 * Sert de repli quand la colonne `value` de la commande source est vide.
+	 */
+	public static function lastHistoValue($_cmd) {
+		if (!is_object($_cmd)) {
+			return '';
+		}
+		$row = DB::Prepare('SELECT value FROM history WHERE cmd_id = :id ORDER BY datetime DESC LIMIT 1', array('id' => $_cmd->getId()), DB::FETCH_TYPE_ROW);
+		if (is_array($row) && isset($row['value']) && $row['value'] !== '') {
+			return $row['value'];
+		}
+		return '';
+	}
+
 	/* ------------------------------------------------------------------ lecture des sources */
 
 	/**
@@ -378,6 +393,12 @@ class ecopilot {
 			}
 			$lues++;
 			$raw = $cmd->getValue();
+			/* Certains modules (et le cœur lui-même sur 4.6.1) alimentent l'historique
+			 * sans remplir la colonne `value` : la commande paraît vide alors qu'elle
+			 * remonte. On reprend alors la dernière valeur de l'historique. */
+			if ($raw === '' || $raw === null) {
+				$raw = self::lastHistoValue($cmd);
+			}
 			if ($_def['type'] == 'binary') {
 				$bools[] = self::toBool($raw);
 			} elseif ($_def['type'] == 'string') {
