@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.6 — 2026-10-25
+
+Correctif de fond : une commande source peut être **une commande virtuelle** dont la valeur est une référence du cœur
+(`#1083#`, c'est-à-dire « la valeur de la commande 1083 »). Éco Pilot lisait ce texte tel quel — d'où des valeurs
+absurdes (le numéro de la commande au lieu de la mesure) ou vides auparavant. Les références sont maintenant résolues
+(profondeur 5, références imbriquées comprises, y compris au milieu d'un texte comme `#1083# °C`), et la fraîcheur est
+calculée sur la **commande réellement mesurée**. Une référence impossible à résoudre donne une valeur vide plutôt
+qu'un nombre inventé.
+
 ## 0.1.5 — 2026-10-25
 
 Nouvelle colonne **Source lue** dans « Valeurs lues et état » : pour chaque grandeur elle affiche l'identifiant de la

@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.5';
+	const VERSION = '0.1.6';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -380,6 +380,44 @@ class ecopilot {
 		return '';
 	}
 
+	/**
+	 * Résout les références du cœur : une commande « virtuelle » porte souvent « #1083# » comme
+	 * valeur, c'est-à-dire « la valeur de la commande 1083 ». Sans résolution on lit du texte,
+	 * ou pire le numéro de la commande au lieu de la mesure.
+	 */
+	public static function resolveRef($_raw, $_depth = 0) {
+		if ($_raw === null || $_raw === '') {
+			return $_raw;
+		}
+		$raw = (string) $_raw;
+		if (strpos($raw, '#') === false || $_depth > 5) {
+			return $_raw;
+		}
+		$resolu = preg_replace_callback('/#(\d+)#/', function ($m) use ($_depth) {
+			$ref = cmd::byId(intval($m[1]));
+			if (!is_object($ref)) {
+				return '';
+			}
+			$val = $ref->getValue();
+			if ($val === '' || $val === null) {
+				$val = ecopilot::lastHistoValue($ref);
+			}
+			return (string) ecopilot::resolveRef($val, $_depth + 1);
+		}, $raw);
+		return ($resolu === null) ? $_raw : $resolu;
+	}
+
+	/** Commande réellement mesurée derrière une valeur de référence (« #1083# »), sinon la commande elle-même. */
+	public static function refCmd($_cmd, $_raw) {
+		if (preg_match('/^#(\d+)#$/', trim((string) $_raw), $m)) {
+			$ref = cmd::byId(intval($m[1]));
+			if (is_object($ref)) {
+				return $ref;
+			}
+		}
+		return $_cmd;
+	}
+
 	/* ------------------------------------------------------------------ lecture des sources */
 
 	/**
@@ -407,6 +445,12 @@ class ecopilot {
 			if ($raw === '' || $raw === null) {
 				$raw = self::lastHistoValue($cmd);
 			}
+			/* Référence du cœur (« #1083# ») : on va chercher la vraie mesure, et sa date. */
+			$mesure = self::refCmd($cmd, $raw);
+			$raw = self::resolveRef($raw);
+			if (preg_match('/#\d+#/', (string) $raw)) {
+				$raw = '';
+			}
 			if ($_def['type'] == 'binary') {
 				$bools[] = self::toBool($raw);
 			} elseif ($_def['type'] == 'string') {
@@ -422,7 +466,7 @@ class ecopilot {
 					$unite = $cmd->getUnite();
 				}
 			}
-			$date = self::lastChange($cmd);
+			$date = self::lastChange($mesure);
 			if ($date != '' && $date !== null && ($newest === null || $date > $newest)) {
 				$newest = $date;
 			}
