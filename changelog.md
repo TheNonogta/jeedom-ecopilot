@@ -1,5 +1,11 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.5 — 2026-10-25
+
+Nouvelle colonne **Source lue** dans « Valeurs lues et état » : pour chaque grandeur elle affiche l'identifiant de la
+commande reliée et la valeur brute qu'elle porte réellement (ou `vide` + la dernière valeur d'historique). Permet de
+voir d'un coup d'œil si Éco Pilot lit la bonne commande et ce qu'elle contient.
+
 ## 0.1.4 — 2026-10-25
 
 - Lecture d'une valeur qui contient son unité (« 24.5 °C », « 85 % », « 1 234,5 W ») : le nombre est extrait au lieu

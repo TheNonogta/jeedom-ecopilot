@@ -385,7 +385,7 @@ function ecopilot_pickIcone($_class, $_value) {
 			<div class="panel-heading"><i class="fas fa-eye"></i> {{Valeurs lues et état}}</div>
 			<table class="table table-condensed table-striped">
 				<thead>
-					<tr><th>{{Grandeur}}</th><th>{{Valeur}}</th><th>{{Sources}}</th><th>{{Dernière remontée}}</th><th>{{Muette}}</th></tr>
+					<tr><th>{{Grandeur}}</th><th>{{Valeur}}</th><th>{{Sources}}</th><th>{{Source lue}}</th><th>{{Dernière remontée}}</th><th>{{Muette}}</th></tr>
 				</thead>
 				<tbody>
 					<?php foreach ($sondeSel->getGrandeurs() as $key => $conf) {
@@ -397,26 +397,30 @@ function ecopilot_pickIcone($_class, $_value) {
 					<tr>
 						<td><?php echo htmlspecialchars($def['label']); ?></td>
 						<td><?php echo ecopilot_aff(is_object($cmd) ? $cmd->getValue() : '', 1); ?> <small><?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : ''; ?></small>
-						<?php
-						/* Repère de diagnostic : quand rien n'est calculé, on montre ce que porte
-						 * réellement la commande source (utile si un module écrit ailleurs). */
-						if (is_object($cmd) && ($cmd->getValue() === '' || $cmd->getValue() === null)) {
-							$srcs = $sondeSel->getSources($key);
-							if (count($srcs)) {
-								$srcCmd = cmd::byId($srcs[0]);
-								if (is_object($srcCmd)) {
-									$brut = $srcCmd->getValue();
-									$histo = ecopilot::lastHistoValue($srcCmd);
-									echo '<div><small class="text-warning">{{source}} : '
-										. (($brut === '' || $brut === null) ? '{{vide}}' : htmlspecialchars($brut))
-										. ' · {{historique}} : ' . ($histo === '' ? '{{aucun}}' : htmlspecialchars($histo))
-										. '</small></div>';
-								}
-							}
-						}
-						?>
 					</td>
 						<td><?php echo count($sondeSel->getSources($key)); ?></td>
+					<td><small><?php
+						$srcs = $sondeSel->getSources($key);
+						if (count($srcs) == 0) {
+							echo '—';
+						}
+						foreach ($srcs as $srcId) {
+							$srcCmd = cmd::byId($srcId);
+							if (!is_object($srcCmd)) {
+								echo '#' . $srcId . ' {{introuvable}}<br>';
+								continue;
+							}
+							$srcVal = $srcCmd->getValue();
+							echo '#' . $srcId . ' · ';
+							echo ($srcVal === '' || $srcVal === null) ? '{{vide}}' : htmlspecialchars($srcVal);
+							echo ' ' . htmlspecialchars($srcCmd->getUnite());
+							if ($srcVal === '' || $srcVal === null) {
+								$h = ecopilot::lastHistoValue($srcCmd);
+								echo ' · {{histo}} ' . ($h === '' ? '{{aucun}}' : htmlspecialchars($h));
+							}
+							echo '<br>';
+						}
+					?></small></td>
 						<td><?php echo is_object($age) && $age->getValue() !== '' ? intval($age->getValue()) . ' min' : '—'; ?></td>
 						<td><?php echo (is_object($muette) && $muette->getValue() == 1) ? '<span class="label label-warning">{{oui}}</span>' : '<span class="label label-success">{{non}}</span>'; ?></td>
 					</tr>
