@@ -424,6 +424,66 @@ function ecopilot_pickIcone($_class, $_value) {
 				</tbody>
 			</table>
 		</div>
+
+		<?php
+		/* Diagnostic copiable : ce que porte réellement chaque commande source, ce que le
+		 * plugin en lit, et ce qu'il en calcule. Sert à trancher entre « valeur vide »,
+		 * « historique vide » et « valeur non numérique » sans ouvrir un terminal. */
+		$diag = array();
+		try {
+		$diag[] = 'Éco Pilot v' . ecopilot::VERSION . ' — Jeedom ' . jeedom::version() . ' — PHP ' . PHP_VERSION;
+		$diag[] = 'sonde #' . $sondeSel->getId() . ' « ' . $sondeSel->getName() . ' » — dernière lecture : ' . $sondeSel->getConfiguration('last_read', 'jamais');
+		foreach ($sondeSel->getGrandeurs() as $key => $conf) {
+			$def = ecopilot::grandeurDef($sondeSel, $key);
+			if ($def === null) {
+				$def = array('label' => $key, 'type' => 'numeric', 'unit' => '');
+			}
+			$diag[] = '';
+			$diag[] = '== ' . $key . ' « ' . $def['label'] . ' » type=' . $def['type'];
+			$sources = $sondeSel->getSources($key);
+			if (count($sources) == 0) {
+				$diag[] = '  aucune source reliée';
+			}
+			foreach ($sources as $cmdId) {
+				$srcCmd = cmd::byId($cmdId);
+				if (!is_object($srcCmd)) {
+					$diag[] = '  cmd #' . $cmdId . ' : INTROUVABLE';
+					continue;
+				}
+				$srcEq = $srcCmd->getEqLogic();
+				$cnt = DB::Prepare('SELECT COUNT(*) AS n FROM history WHERE cmd_id = :id', array('id' => $srcCmd->getId()), DB::FETCH_TYPE_ROW);
+				$last = DB::Prepare('SELECT value, datetime FROM history WHERE cmd_id = :id ORDER BY datetime DESC LIMIT 1', array('id' => $srcCmd->getId()), DB::FETCH_TYPE_ROW);
+				$diag[] = sprintf('  cmd #%d [%s][%s] %s/%s  value=%s  unite=%s  historise=%d  histo=%d lignes  dernière=%s',
+					$srcCmd->getId(),
+					is_object($srcEq) ? $srcEq->getName() : '?',
+					$srcCmd->getName(),
+					$srcCmd->getType(), $srcCmd->getSubType(),
+					var_export($srcCmd->getValue(), true),
+					$srcCmd->getUnite(),
+					(int) $srcCmd->getIsHistorized(),
+					is_array($cnt) ? intval($cnt['n']) : 0,
+					is_array($last) ? ($last['value'] . ' (' . $last['datetime'] . ')') : 'aucune');
+			}
+			$read = ecopilot::readSources($sondeSel, $key, $conf, $def);
+			$res = ecopilot::computeGrandeur($key, $conf, $def, $read);
+			$diag[] = '  lu     : nb=' . $read['nb'] . ' nums=' . json_encode($read['nums']) . ' bools=' . json_encode($read['bools'])
+				. ' strings=' . json_encode($read['strings']) . ' age=' . var_export($read['age'], true) . ' unite=' . $read['unite'];
+			$diag[] = '  calcul : value=' . var_export($res['value'], true) . '  etat=' . $res['state']
+				. '  muette=' . (isset($res['muette']) ? $res['muette'] : '-') . '  agg=' . (isset($res['agg']) ? $res['agg'] : '-');
+		}
+		$diagTxt = implode("\n", $diag);
+		} catch (\Throwable $e) {
+			$diagTxt = 'Diagnostic indisponible : ' . $e->getMessage();
+		}
+		?>
+		<div class="panel panel-default">
+			<div class="panel-heading"><i class="fas fa-stethoscope"></i> {{Diagnostic des sources}}</div>
+			<div class="panel-body">
+				<p><small>{{Si une valeur ne remonte pas, copie ce texte et envoie-le : il contient ce que porte chaque commande source et ce que le plugin en lit.}}</small></p>
+				<textarea class="form-control ep-diag" rows="12" readonly style="font-family:monospace;font-size:11px;"><?php echo htmlspecialchars($diagTxt); ?></textarea>
+				<button class="btn btn-sm btn-default bt_diagSel" style="margin-top:6px;"><i class="fas fa-copy"></i> {{Tout sélectionner}}</button>
+			</div>
+		</div>
 <?php } ?>
 
 <?php } elseif ($tab == 'pieces') { ?>

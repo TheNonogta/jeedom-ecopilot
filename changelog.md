@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.4 — 2026-10-25
+
+- Lecture d'une valeur qui contient son unité (« 24.5 °C », « 85 % », « 1 234,5 W ») : le nombre est extrait au lieu
+  de rejeter la lecture — certains modules rangent l'unité dans la valeur et la grandeur restait vide.
+- Le repli sur l'historique ignore les lignes vides (un module peut historiser une valeur vide entre deux mesures).
+- Nouveau panneau **Diagnostic des sources** sur la fiche d'une sonde : pour chaque grandeur, il affiche la commande
+  source (id, type, valeur brute, unité, historisée ou non, nombre de lignes d'historique, dernière valeur et sa date),
+  ce que le plugin en lit et ce qu'il en calcule. Bouton « Tout sélectionner » pour copier le texte.
+
 ## 0.1.3 — 2026-10-25
 
 Correctif : une sonde reliée à une commande dont la colonne `value` est vide affichait « — » alors que la source

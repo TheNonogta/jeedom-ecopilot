@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.3';
+	const VERSION = '0.1.4';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -232,12 +232,18 @@ class ecopilot {
 		if ($_value === null || $_value === '') {
 			return null;
 		}
-		$value = str_replace(array(' ', '°', '%', "\xc2\xa0"), '', (string) $_value);
+		$value = str_replace(array("\xc2\xa0", ' '), '', (string) $_value);
 		$value = str_replace(',', '.', $value);
-		if (!is_numeric($value)) {
-			return null;
+		if (is_numeric($value)) {
+			return floatval($value);
 		}
-		return floatval($value);
+		/* Certains modules rangent l'unité dans la valeur elle-même (« 24.5 °C »,
+		 * « 85 % », « 1 234.5 W ») : on extrait le premier nombre au lieu de tout
+		 * rejeter, sinon la grandeur reste vide alors que la source remonte. */
+		if (preg_match('/-?\d+(?:\.\d+)?/', $value, $m)) {
+			return floatval($m[0]);
+		}
+		return null;
 	}
 
 	public static function aggregateNum(array $_values, $_agg) {
@@ -365,7 +371,9 @@ class ecopilot {
 		if (!is_object($_cmd)) {
 			return '';
 		}
-		$row = DB::Prepare('SELECT value FROM history WHERE cmd_id = :id ORDER BY datetime DESC LIMIT 1', array('id' => $_cmd->getId()), DB::FETCH_TYPE_ROW);
+		/* On saute les lignes vides : certains modules historisent une valeur vide
+		 * entre deux mesures, et la dernière ligne n'est pas forcément la bonne. */
+		$row = DB::Prepare("SELECT value FROM history WHERE cmd_id = :id AND value IS NOT NULL AND value <> '' ORDER BY datetime DESC LIMIT 1", array('id' => $_cmd->getId()), DB::FETCH_TYPE_ROW);
 		if (is_array($row) && isset($row['value']) && $row['value'] !== '') {
 			return $row['value'];
 		}
@@ -442,7 +450,7 @@ class ecopilot {
 		$agg = isset($_conf['agg']) ? $_conf['agg'] : ($_def['type'] == 'binary' ? 'or' : 'mean');
 		$value = null;
 		if ($_read['nb'] == 0) {
-			return array('value' => null, 'state' => 'a_relier', 'age' => null, 'unite' => '');
+			return array('value' => null, 'state' => 'a_relier', 'age' => null, 'unite' => '', 'muette' => 0, 'agg' => $agg);
 		}
 		if ($_def['type'] == 'binary') {
 			if (count($_read['bools']) > 0) {
