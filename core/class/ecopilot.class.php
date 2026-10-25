@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.0';
+	const VERSION = '0.1.2';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -74,6 +74,58 @@ class ecopilot {
 
 	private static $catalogue = null;
 	private static $flat = null;
+	private static $piecesIcones = null;
+
+	/* --------------------------------------------------------------- icônes de pièce */
+
+	/** Catalogue d'icônes de pièce, groupé (pièces de vie, nuit, eau, service, circulation, extérieur, général). */
+	public static function piecesIcones() {
+		if (self::$piecesIcones === null) {
+			$file = __DIR__ . '/../config/pieces.json';
+			$json = is_file($file) ? json_decode(file_get_contents($file), true) : null;
+			self::$piecesIcones = (is_array($json) && isset($json['groupes'])) ? $json['groupes'] : array();
+		}
+		return self::$piecesIcones;
+	}
+
+	/** Libellé d'une icône de pièce d'après sa classe Font Awesome ('' si elle n'est pas au catalogue). */
+	public static function pieceIconeLabel($_icon) {
+		foreach (self::piecesIcones() as $groupe) {
+			foreach ($groupe['icones'] as $icone) {
+				if ($icone['icon'] === $_icon) {
+					return $icone['label'];
+				}
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Sélecteur d'icône de pièce : grille groupée + recherche + libellé de la pièce choisie.
+	 * La valeur enregistrée reste la classe Font Awesome, portée par un champ caché de la
+	 * classe demandée : le JS et l'AJAX continuent de lire ce champ comme avant.
+	 */
+	public static function pickIcone($_class, $_value) {
+		$choix = ($_value != '') ? $_value : 'fas fa-home';
+		$html = '<div class="ep-icones">';
+		$html .= '<input type="hidden" class="' . $_class . '" value="' . htmlspecialchars($_value) . '">';
+		$html .= '<input type="text" class="form-control input-sm ep-icones-filtre" placeholder="' . htmlspecialchars(__('Rechercher une pièce', __FILE__)) . '">';
+		foreach (self::piecesIcones() as $groupe) {
+			$html .= '<div class="ep-icones-groupe"><span class="ep-icones-titre">' . htmlspecialchars($groupe['label']) . '</span>';
+			foreach ($groupe['icones'] as $icone) {
+				$actif = ($icone['icon'] === $_value) ? ' active' : '';
+				$html .= '<button type="button" class="btn btn-default btn-xs ep-icone' . $actif . '"'
+					. ' data-icon="' . $icone['icon'] . '"'
+					. ' data-label="' . htmlspecialchars($icone['label']) . '"'
+					. ' title="' . htmlspecialchars($icone['label']) . '">'
+					. '<i class="' . $icone['icon'] . '"></i></button>';
+			}
+			$html .= '</div>';
+		}
+		$html .= '<div class="ep-icones-choix"><i class="' . $choix . '"></i> <span>' . htmlspecialchars(self::pieceIconeLabel($_value)) . '</span></div>';
+		$html .= '</div>';
+		return $html;
+	}
 
 	/* ------------------------------------------------------------------ catalogue */
 

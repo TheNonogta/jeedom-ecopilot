@@ -25,3 +25,54 @@
 	width: 100%;
 	text-align: left;
 }
+
+/* Sélecteur d'icône de pièce : grille groupée, filtrée par la recherche.
+   Aucune couleur en dur : bordure et fond neutres, le reste vient du thème. */
+.ecopilot .ep-icones {
+	border: 1px solid rgba(128, 128, 128, .35);
+	border-radius: 4px;
+	padding: 6px;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.ecopilot .ep-icones-filtre {
+	margin-bottom: 6px;
+}
+
+.ecopilot .ep-icones-groupe {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+	margin-bottom: 6px;
+}
+
+.ecopilot .ep-icones-titre {
+	flex: 0 0 100%;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: .3px;
+	opacity: .65;
+	margin-top: 2px;
+}
+
+.ecopilot .ep-icone {
+	width: 32px;
+	height: 28px;
+	padding: 0;
+}
+
+.ecopilot .ep-icone.active {
+	font-weight: 600;
+}
+
+.ecopilot .ep-icones-choix {
+	margin-top: 4px;
+	font-size: 12px;
+	opacity: .85;
+}
+
+.ecopilot .ep-icones-choix i {
+	margin-right: 4px;
+}

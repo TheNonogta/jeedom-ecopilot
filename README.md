@@ -1,6 +1,6 @@
 # Éco Pilot — plugin Jeedom
 
-**Version 0.1.1** · Jeedom 4.4 ou supérieur · PHP 7.4 ou supérieur · Licence AGPL-3.0
+**Version 0.1.2** · Jeedom 4.4 ou supérieur · PHP 7.4 ou supérieur · Licence AGPL-3.0
 
 Plugin de pilotage économe de l'habitat. Ce n'est **pas** un plugin matériel : c'est une **couche d'abstraction**.
 Il ne parle à aucun équipement — vous reliez vous-même, fonction par fonction, les commandes d'information et d'action

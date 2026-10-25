@@ -1,0 +1,326 @@
+{
+  "groupes": [
+    {
+      "key": "vie",
+      "label": "Pièces de vie",
+      "icones": [
+        {
+          "key": "salon",
+          "label": "Salon",
+          "icon": "fas fa-couch"
+        },
+        {
+          "key": "sejour",
+          "label": "Séjour",
+          "icon": "fas fa-tv"
+        },
+        {
+          "key": "salle_a_manger",
+          "label": "Salle à manger",
+          "icon": "fas fa-utensils"
+        },
+        {
+          "key": "cuisine",
+          "label": "Cuisine",
+          "icon": "fas fa-blender"
+        },
+        {
+          "key": "bureau",
+          "label": "Bureau",
+          "icon": "fas fa-laptop"
+        },
+        {
+          "key": "bibliotheque",
+          "label": "Bibliothèque",
+          "icon": "fas fa-book"
+        },
+        {
+          "key": "salle_de_jeux",
+          "label": "Salle de jeux",
+          "icon": "fas fa-gamepad"
+        },
+        {
+          "key": "salle_de_sport",
+          "label": "Salle de sport",
+          "icon": "fas fa-dumbbell"
+        },
+        {
+          "key": "salle_de_musique",
+          "label": "Salle de musique",
+          "icon": "fas fa-music"
+        }
+      ]
+    },
+    {
+      "key": "nuit",
+      "label": "Chambres et nuit",
+      "icones": [
+        {
+          "key": "chambre",
+          "label": "Chambre",
+          "icon": "fas fa-bed"
+        },
+        {
+          "key": "chambre_parentale",
+          "label": "Chambre parentale",
+          "icon": "fas fa-bed"
+        },
+        {
+          "key": "chambre_amis",
+          "label": "Chambre d'amis",
+          "icon": "fas fa-user-friends"
+        },
+        {
+          "key": "chambre_enfant",
+          "label": "Chambre d'enfant",
+          "icon": "fas fa-child"
+        },
+        {
+          "key": "chambre_bebe",
+          "label": "Chambre de bébé",
+          "icon": "fas fa-baby"
+        },
+        {
+          "key": "dressing",
+          "label": "Dressing",
+          "icon": "fas fa-tshirt"
+        },
+        {
+          "key": "mezzanine",
+          "label": "Mezzanine",
+          "icon": "fas fa-layer-group"
+        },
+        {
+          "key": "studio",
+          "label": "Studio",
+          "icon": "fas fa-home"
+        }
+      ]
+    },
+    {
+      "key": "eau",
+      "label": "Eau",
+      "icones": [
+        {
+          "key": "salle_de_bain",
+          "label": "Salle de bain",
+          "icon": "fas fa-bath"
+        },
+        {
+          "key": "salle_d_eau",
+          "label": "Salle d'eau",
+          "icon": "fas fa-shower"
+        },
+        {
+          "key": "wc",
+          "label": "WC",
+          "icon": "fas fa-toilet"
+        },
+        {
+          "key": "buanderie",
+          "label": "Buanderie / lingerie",
+          "icon": "fas fa-soap"
+        },
+        {
+          "key": "spa",
+          "label": "Spa / sauna",
+          "icon": "fas fa-hot-tub"
+        }
+      ]
+    },
+    {
+      "key": "service",
+      "label": "Service et technique",
+      "icones": [
+        {
+          "key": "cellier",
+          "label": "Cellier",
+          "icon": "fas fa-box-open"
+        },
+        {
+          "key": "chaufferie",
+          "label": "Chaufferie",
+          "icon": "fas fa-fire"
+        },
+        {
+          "key": "garde_manger",
+          "label": "Garde-manger",
+          "icon": "fas fa-carrot"
+        },
+        {
+          "key": "local_technique",
+          "label": "Local technique",
+          "icon": "fas fa-server"
+        },
+        {
+          "key": "cave",
+          "label": "Cave",
+          "icon": "fas fa-dungeon"
+        },
+        {
+          "key": "cave_a_vin",
+          "label": "Cave à vin",
+          "icon": "fas fa-wine-bottle"
+        },
+        {
+          "key": "sous_sol",
+          "label": "Sous-sol",
+          "icon": "fas fa-warehouse"
+        },
+        {
+          "key": "grenier",
+          "label": "Grenier",
+          "icon": "fas fa-archive"
+        },
+        {
+          "key": "atelier",
+          "label": "Atelier",
+          "icon": "fas fa-tools"
+        },
+        {
+          "key": "garage",
+          "label": "Garage",
+          "icon": "fas fa-car"
+        },
+        {
+          "key": "abri_de_jardin",
+          "label": "Abri de jardin",
+          "icon": "fas fa-tractor"
+        },
+        {
+          "key": "poulailler",
+          "label": "Poulailler",
+          "icon": "fas fa-egg"
+        },
+        {
+          "key": "grange",
+          "label": "Grange",
+          "icon": "fas fa-boxes"
+        },
+        {
+          "key": "rangement",
+          "label": "Rangement",
+          "icon": "fas fa-box"
+        },
+        {
+          "key": "chambre_froide",
+          "label": "Chambre froide",
+          "icon": "fas fa-snowflake"
+        }
+      ]
+    },
+    {
+      "key": "circulation",
+      "label": "Circulation",
+      "icones": [
+        {
+          "key": "entree",
+          "label": "Entrée",
+          "icon": "fas fa-door-open"
+        },
+        {
+          "key": "hall",
+          "label": "Hall",
+          "icon": "fas fa-archway"
+        },
+        {
+          "key": "couloir",
+          "label": "Couloir",
+          "icon": "fas fa-arrows-alt-h"
+        },
+        {
+          "key": "palier",
+          "label": "Palier",
+          "icon": "fas fa-sign-in-alt"
+        },
+        {
+          "key": "degagement",
+          "label": "Dégagement",
+          "icon": "fas fa-shoe-prints"
+        },
+        {
+          "key": "escalier",
+          "label": "Escalier",
+          "icon": "fas fa-arrows-alt-v"
+        }
+      ]
+    },
+    {
+      "key": "exterieur",
+      "label": "Extérieur",
+      "icones": [
+        {
+          "key": "terrasse",
+          "label": "Terrasse",
+          "icon": "fas fa-umbrella-beach"
+        },
+        {
+          "key": "jardin",
+          "label": "Jardin",
+          "icon": "fas fa-tree"
+        },
+        {
+          "key": "piscine",
+          "label": "Piscine",
+          "icon": "fas fa-swimming-pool"
+        },
+        {
+          "key": "pool_house",
+          "label": "Pool house",
+          "icon": "fas fa-water"
+        },
+        {
+          "key": "balcon",
+          "label": "Balcon",
+          "icon": "fas fa-building"
+        },
+        {
+          "key": "veranda",
+          "label": "Véranda",
+          "icon": "fas fa-sun"
+        },
+        {
+          "key": "cour",
+          "label": "Cour",
+          "icon": "fas fa-border-all"
+        },
+        {
+          "key": "potager",
+          "label": "Potager",
+          "icon": "fas fa-seedling"
+        },
+        {
+          "key": "verger",
+          "label": "Verger",
+          "icon": "fas fa-leaf"
+        },
+        {
+          "key": "exterieur",
+          "label": "Extérieur (générique)",
+          "icon": "fas fa-globe"
+        }
+      ]
+    },
+    {
+      "key": "general",
+      "label": "Général",
+      "icones": [
+        {
+          "key": "maison",
+          "label": "Maison",
+          "icon": "fas fa-home"
+        },
+        {
+          "key": "piece",
+          "label": "Pièce (générique)",
+          "icon": "fas fa-door-closed"
+        },
+        {
+          "key": "autre",
+          "label": "Autre",
+          "icon": "fas fa-ellipsis-h"
+        }
+      ]
+    }
+  ]
+}

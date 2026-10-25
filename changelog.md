@@ -1,5 +1,19 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.2 — 2026-10-24
+
+Icônes de pièce : catalogue de **54 icônes** couvrant les pièces d'une maison — pièces de vie (salon, séjour, salle à
+manger, cuisine, bureau, bibliothèque, salle de jeux, salle de sport, salle de musique), chambres et nuit (chambre,
+chambre parentale, chambre d'amis, chambre d'enfant, chambre de bébé, dressing, mezzanine, studio), eau (salle de bain,
+salle d'eau, WC, buanderie, spa), service et technique (cellier, chaufferie, local technique, cave, cave à vin,
+sous-sol, grenier, atelier, garage, abri de jardin, poulailler, grange, rangement), circulation (entrée, hall, couloir,
+palier, dégagement, escalier), extérieur (terrasse, jardin, piscine, pool house, balcon, véranda, cour, potager,
+verger) et général.
+
+Le sélecteur devient une **grille groupée avec recherche** dans la création comme dans la modification d'une pièce ;
+la valeur enregistrée reste la classe Font Awesome, donc les pièces existantes conservent leur icône. Le numéro de
+version affiché dans la page suit désormais celui de `info.json`.
+
 ## 0.1.1 — 2026-10-24
 
 Version de vérification du canal de mise à jour GitHub. Aucun changement fonctionnel : seul le numéro de version

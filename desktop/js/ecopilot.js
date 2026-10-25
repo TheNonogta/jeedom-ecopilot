@@ -247,6 +247,34 @@ $(document).on('click', '.bt_doCreateCustom', function () {
 
 /* -------------------------------------------------------------- pièces */
 
+/* Sélecteur d'icône de pièce : la grille porte un champ caché qui garde la classe
+   Font Awesome. Le reste du code (createPiece, savePiece) lit ce champ comme avant. */
+$(document).on('click', '.ep-icone', function (event) {
+	event.preventDefault();
+	var $bloc = $(this).closest('.ep-icones');
+	$bloc.find('.ep-icone').removeClass('active');
+	$(this).addClass('active');
+	$bloc.find('input[type=hidden]').val($(this).data('icon'));
+	$bloc.find('.ep-icones-choix i').attr('class', $(this).data('icon'));
+	$bloc.find('.ep-icones-choix span').text($(this).data('label'));
+});
+
+$(document).on('input', '.ep-icones-filtre', function () {
+	var q = String($(this).val()).toLowerCase();
+	var $bloc = $(this).closest('.ep-icones');
+	$bloc.find('.ep-icones-groupe').each(function () {
+		var visibles = 0;
+		$(this).find('.ep-icone').each(function () {
+			var trouve = String($(this).data('label')).toLowerCase().indexOf(q) !== -1;
+			$(this).toggle(trouve);
+			if (trouve) {
+				visibles++;
+			}
+		});
+		$(this).toggle(visibles > 0);
+	});
+});
+
 $(document).on('click', '.bt_newPiece', function () {
 	$('#md_newPiece').modal('show');
 });

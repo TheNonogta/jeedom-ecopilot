@@ -64,6 +64,14 @@ function ecopilot_icon($_eqLogic) {
 	}
 	return 'fas fa-broadcast-tower';
 }
+
+/**
+ * Sélecteur d'icône de pièce : la grille est produite par ecopilot::pickIcone()
+ * (catalogue dans core/config/pieces.json), la valeur enregistrée reste la classe Font Awesome.
+ */
+function ecopilot_pickIcone($_class, $_value) {
+	return ecopilot::pickIcone($_class, $_value);
+}
 ?>
 <div class="row row-overflow ecopilot">
 
@@ -464,18 +472,6 @@ function ecopilot_icon($_eqLogic) {
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
-							<label class="control-label">{{Icône}}</label>
-							<select class="form-control input-sm ep_pieceIcon">
-								<?php
-								$icones = array('fas fa-couch' => 'Canapé (salon)', 'fas fa-bed' => 'Lit (chambre)', 'fas fa-desktop' => 'Bureau', 'fas fa-utensils' => 'Cuisine', 'fas fa-bath' => 'Salle de bain', 'fas fa-door-open' => 'Entrée', 'fas fa-warehouse' => 'Cave', 'fas fa-car' => 'Garage', 'fas fa-tree' => 'Extérieur', 'fas fa-home' => 'Maison');
-foreach ($icones as $icon => $label) { ?>
-								<option value="<?php echo $icon; ?>" <?php echo ($pieceSel->getIcon() == $icon) ? 'selected' : ''; ?>><?php echo $label; ?></option>
-								<?php } ?>
-							</select>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group">
 							<label class="control-label">{{Type}}</label>
 							<select class="form-control input-sm ep_pieceType">
 								<option value="interieur" <?php echo ($pieceSel->getPieceType() == 'interieur') ? 'selected' : ''; ?>>{{Intérieure}}</option>
@@ -484,6 +480,10 @@ foreach ($icones as $icon => $label) { ?>
 							<div><small>{{Une pièce extérieure sert à l'écart intérieur/extérieur.}}</small></div>
 						</div>
 					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">{{Icône de la pièce}}</label>
+					<?php echo ecopilot_pickIcone('ep_pieceIcon', $pieceSel->getIcon()); ?>
 				</div>
 				<div class="form-group">
 					<label class="control-label">{{Compter dans la moyenne de la maison}}</label>
@@ -661,18 +661,7 @@ foreach (array('temperature', 'hygrometrie', 'ecart', 'plus_froide', 'plus_froid
 				</div>
 				<div class="form-group">
 					<label class="control-label">{{Icône}}</label>
-					<select class="form-control ep_newPieceIcon">
-						<option value="fas fa-couch">Canapé (salon)</option>
-						<option value="fas fa-bed">Lit (chambre)</option>
-						<option value="fas fa-desktop">Bureau</option>
-						<option value="fas fa-utensils">Cuisine</option>
-						<option value="fas fa-bath">Salle de bain</option>
-						<option value="fas fa-door-open">Entrée</option>
-						<option value="fas fa-warehouse">Cave</option>
-						<option value="fas fa-car">Garage</option>
-						<option value="fas fa-tree">Extérieur</option>
-						<option value="fas fa-home">Maison</option>
-					</select>
+					<?php echo ecopilot_pickIcone('ep_newPieceIcon', 'fas fa-home'); ?>
 				</div>
 				<div class="form-group">
 					<label class="control-label">{{Type}}</label>
