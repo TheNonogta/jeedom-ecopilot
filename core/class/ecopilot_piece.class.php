@@ -44,7 +44,16 @@ class ecopilot_piece extends eqLogic {
 		}
 		$clean = array();
 		foreach ($sondes as $sondeId => $compte) {
-			$clean[intval($sondeId)] = intval($compte) ? 1 : 0;
+			$id = intval($sondeId);
+			if ($id <= 0) {
+				continue;
+			}
+			/* Une sonde supprimée ailleurs (liste des équipements, scénario) ne doit pas
+			 * rester comptée ici : on ne garde que ce qui existe encore. */
+			if (!is_object(ecopilot_sonde::byId($id))) {
+				continue;
+			}
+			$clean[$id] = intval($compte) ? 1 : 0;
 		}
 		return $clean;
 	}

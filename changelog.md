@@ -1,5 +1,17 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.9 — 2026-10-25
+
+Correctif : une sonde créée dans une pièce s'affichait bien avec le nom de la pièce, mais la **pièce restait à
+« 0 sonde »** et ne calculait donc aucune moyenne. La sonde portait sa pièce, mais la pièce ne recevait jamais la
+sonde. Désormais :
+
+- chaque sauvegarde d'une sonde la rattache à la pièce qu'elle déclare (et la détache des autres) ;
+- la suppression d'une sonde la retire de sa pièce, quel que soit le chemin (liste des équipements, scénario) ;
+- une sonde supprimée ailleurs n'est plus comptée par la pièce (les identifiants morts sont ignorés) ;
+- un recalage complet est fait à chaque mise à jour du plugin et par le cron : les sondes déjà créées se rattachent
+  toutes seules, sans avoir à les rouvrir.
+
 ## 0.1.8 — 2026-10-25
 
 Cas des équipements **virtuels** : leur commande garde le texte de la référence (`#1083#`) dans la colonne `value`

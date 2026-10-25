@@ -133,6 +133,19 @@ class ecopilot_sonde extends eqLogic {
 	}
 
 	public function postSave() {
-		return;
+		/* Toute sauvegarde d'une sonde recale son rattachement à une pièce. */
+		ecopilot::syncSondePiece($this);
+	}
+
+	public function preRemove() {
+		/* Supprimée par n'importe quel chemin (liste des équipements, scénario), la sonde
+		 * se détache de sa pièce : sinon la pièce garde un identifiant mort. */
+		foreach (ecopilot_piece::all() as $piece) {
+			if (array_key_exists(intval($this->getId()), $piece->getSondes())) {
+				$piece->removeSonde($this->getId());
+				$piece->save();
+				ecopilot::refreshPiece($piece);
+			}
+		}
 	}
 }

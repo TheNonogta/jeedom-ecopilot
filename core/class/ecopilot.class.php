@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.8';
+	const VERSION = '0.1.9';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -782,7 +782,38 @@ class ecopilot {
 		self::posCmdValue(self::cmdOf($maison, 'pieces'), count($temps));
 	}
 
+	/**
+	 * Rattache (ou détache) une sonde à la pièce qu'elle déclare. La sonde porte son
+	 * `piece_id`, mais c'est la pièce qui tient la liste de ses sondes : sans cette
+	 * synchro, la sonde s'affiche avec le bon nom de pièce alors que la pièce compte
+	 * « 0 sonde » et n'a donc aucune moyenne.
+	 */
+	public static function syncSondePiece($_sonde) {
+		if (!is_object($_sonde)) {
+			return;
+		}
+		$pieceId = intval($_sonde->getPieceId());
+		foreach (ecopilot_piece::all() as $piece) {
+			$sondes = $piece->getSondes();
+			$dedans = array_key_exists($_sonde->getId(), $sondes);
+			if ($piece->getId() == $pieceId && !$dedans) {
+				$piece->addSonde($_sonde->getId(), 1);
+				$piece->save();
+				self::refreshPiece($piece);
+			} elseif ($piece->getId() != $pieceId && $dedans) {
+				$piece->removeSonde($_sonde->getId());
+				$piece->save();
+				self::refreshPiece($piece);
+			}
+		}
+	}
+
 	public static function refreshAll() {
+		/* On recale d'abord les rattachements : une sonde créée ou déplacée sans que la
+		 * pièce en soit informée doit apparaître dans sa pièce au prochain passage. */
+		foreach (ecopilot_sonde::all() as $sonde) {
+			self::syncSondePiece($sonde);
+		}
 		foreach (ecopilot_sonde::all() as $sonde) {
 			self::refreshSonde($sonde);
 		}
