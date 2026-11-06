@@ -161,7 +161,7 @@
      "type": "numeric",
      "unit": "indice",
      "icon": "fas fa-sun",
-     "fresh": 120
+     "fresh": 0
     },
     {
      "key": "rayonnement_solaire",

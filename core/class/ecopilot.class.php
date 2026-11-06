@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.11';
+	const VERSION = '0.1.12';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -217,17 +217,49 @@ class ecopilot {
 	}
 
 	/**
+	 * Révision 2 des seuils : l'UV passe de 120 min à « jamais muet ».
+	 * Un capteur d'UV ne remonte que quand la luminosité change vraiment — la nuit, il se tait
+	 * légitimement pendant des heures. On ne réaligne que les grandeurs restées à l'ancienne
+	 * valeur recommandée (120) ; un seuil choisi à la main est conservé.
+	 */
+	public static function migrateFreshRev2() {
+		if (config::byKey('freshRev2', self::LOG_ID, 0) == 1) {
+			return 0;
+		}
+		$changes = 0;
+		foreach (ecopilot_sonde::all() as $sonde) {
+			$conf = $sonde->getGrandeur('uv');
+			if (!is_array($conf)) {
+				continue;
+			}
+			$actuel = (isset($conf['fresh']) && $conf['fresh'] !== '') ? intval($conf['fresh']) : null;
+			if ($actuel === null || $actuel === 120) {
+				$conf['fresh'] = 0;
+				$sonde->setGrandeur('uv', $conf);
+				$sonde->save();
+				self::refreshSonde($sonde);
+				$changes++;
+			}
+		}
+		config::save('freshRev2', 1, self::LOG_ID);
+		if ($changes > 0) {
+			self::log('UV : seuil passé à « jamais muet » sur ' . $changes . ' sonde(s)');
+		}
+		return $changes;
+	}
+
+	/**
 	 * Migration : les grandeurs créées avant la 0.1.11 portent toutes le seuil global
 	 * (souvent 15 ou 60 min), y compris les contacts de porte qui n'auraient jamais dû en avoir.
 	 * On réaligne sur la valeur recommandée par type **uniquement** quand le seuil enregistré
 	 * est encore l'ancien défaut global — un seuil choisi à la main est conservé.
 	 */
 	public static function migrateFresh() {
+		$changes = self::migrateFreshRev2();
 		if (config::byKey('freshByType', self::LOG_ID, 0) == 1) {
-			return 0;
+			return $changes;
 		}
 		$ancien = intval(config::byKey('freshDefault', self::LOG_ID, 60));
-		$changes = 0;
 		foreach (ecopilot_sonde::all() as $sonde) {
 			$modifie = false;
 			foreach ($sonde->getGrandeurs() as $key => $conf) {

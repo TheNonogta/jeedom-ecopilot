@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.12 — 2026-11-06
+
+L'indice **UV** rejoint les valeurs pour lesquelles le silence est normal : un capteur d'UV ne remonte que lorsque la
+luminosité change réellement, et la nuit il se tait pendant des heures. Le seuil passe de 120 min à **jamais muet**.
+
+La migration ne réaligne que les grandeurs restées à l'ancienne valeur recommandée (120 min) ; un seuil choisi à la
+main est conservé.
+
 ## 0.1.11 — 2026-11-06
 
 Le seuil de « source muette » était le même pour toutes les valeurs, alors que sa pertinence dépend de leur nature :
