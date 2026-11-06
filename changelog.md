@@ -1,5 +1,23 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.11 — 2026-11-06
+
+Le seuil de « source muette » était le même pour toutes les valeurs, alors que sa pertinence dépend de leur nature :
+une température qui ne bouge pas pendant une heure signale une sonde morte, un **contact de porte fermée** est
+silencieux par nature et ne devait jamais être déclaré muet.
+
+Le seuil est désormais porté par le catalogue, grandeur par grandeur :
+
+- **jamais muet (0)** : présence, mouvement, ouverture, fumée, fuite d'eau, fuite de gaz, vibration, état
+  d'équipement, dernière vue — ce sont des états poussés sur événement ;
+- **30 min** : puissance, puissance apparente ;
+- **60 min** : températures, humidités, CO2 et qualité d'air, tension, courant, vent, débits ;
+- **120 min** : luminosité, UV, rayonnement, météo lente, radon ;
+- **24 h** : index d'énergie, d'eau et de gaz, batteries, cumuls de pluie — ils bougent lentement.
+
+Le champ reste modifiable sur la fiche de la sonde, `0` signifiant « jamais muette ». Une migration unique réaligne
+les grandeurs existantes qui portaient encore l'ancien seuil global ; un seuil choisi à la main est conservé.
+
 ## 0.1.10 — 2026-11-06
 
 Une mesure qui vaut **zéro** était perdue : le calcul renvoie un nombre décimal (`0.0`), et le cœur ne l'enregistre

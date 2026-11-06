@@ -81,7 +81,7 @@ try {
 		$sonde->setGrandeur($key, array(
 			'sources' => array(),
 			'agg' => ($def['type'] == 'binary') ? 'or' : 'mean',
-			'fresh' => intval(config::byKey('freshDefault', 'ecopilot', 60)),
+			'fresh' => ecopilot::freshDefault($def),
 		));
 		$sonde->save();
 		ecopilot::refreshSonde($sonde);
@@ -105,7 +105,7 @@ try {
 			'type' => $type,
 			'sources' => array(),
 			'agg' => ($type == 'binary') ? 'or' : 'mean',
-			'fresh' => intval(config::byKey('freshDefault', 'ecopilot', 60)),
+			'fresh' => ecopilot::freshDefault(array('type' => $type)),
 		));
 		$sonde->save();
 		ecopilot::refreshSonde($sonde);

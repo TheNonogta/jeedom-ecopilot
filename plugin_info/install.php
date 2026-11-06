@@ -51,6 +51,7 @@ function ecopilot_install() {
 	$cron->setTimeout(5);
 	$cron->setSchedule('*/5 * * * *');
 	$cron->save();
+	ecopilot::migrateFresh();
 	ecopilot::registerListeners();
 	ecopilot::refreshAll();
 	ecopilot::log('installation terminée');

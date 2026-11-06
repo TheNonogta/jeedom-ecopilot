@@ -349,8 +349,11 @@ function ecopilot_pickIcone($_class, $_value) {
 								</td>
 								<td><?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : '—'; ?></td>
 								<td>
-									<input type="number" class="form-control input-sm ep_fresh" style="width:70px;" data-sonde="<?php echo $sondeSel->getId(); ?>" data-key="<?php echo $key; ?>"
-										value="<?php echo isset($conf['fresh']) ? intval($conf['fresh']) : 60; ?>"> <small>min</small>
+									<?php $freshDefaut = ecopilot::freshDefault(ecopilot::grandeurDef($sondeSel, $key)); ?>
+									<input type="number" min="0" class="form-control input-sm ep_fresh" style="width:70px;" data-sonde="<?php echo $sondeSel->getId(); ?>" data-key="<?php echo $key; ?>"
+										title="{{Délai sans remontée avant de déclarer la source muette. 0 = jamais.}}"
+										value="<?php echo (isset($conf['fresh']) && $conf['fresh'] !== '') ? intval($conf['fresh']) : $freshDefaut; ?>">
+									<small><?php echo $freshDefaut == 0 ? '{{jamais muette}}' : 'min'; ?></small>
 								</td>
 								<td>
 									<select class="form-control input-sm ep_agg" data-sonde="<?php echo $sondeSel->getId(); ?>" data-key="<?php echo $key; ?>" style="width:110px;">

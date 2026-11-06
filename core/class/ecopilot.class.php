@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.10';
+	const VERSION = '0.1.11';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -182,6 +182,21 @@ class ecopilot {
 		return null;
 	}
 
+	/**
+	 * Seuil de fraîcheur par défaut d'une grandeur, en minutes.
+	 *
+	 * Le catalogue porte la valeur recommandée, parce qu'elle dépend de la nature de la mesure : une température
+	 * qui ne bouge pas pendant une heure signale une sonde morte, alors qu'un contact de porte **fermée** est
+	 * silencieux par nature et ne doit jamais être déclaré muet (0 = jamais). Le réglage global ne sert plus que
+	 * de repli pour les grandeurs qui n'en portent pas.
+	 */
+	public static function freshDefault($_def) {
+		if (is_array($_def) && isset($_def['fresh'])) {
+			return intval($_def['fresh']);
+		}
+		return intval(config::byKey('freshDefault', self::LOG_ID, 60));
+	}
+
 	/** Transforme un libellé en clé technique (grandeurs personnalisées). */
 	public static function slug($_label) {
 		$label = str_replace(
@@ -199,6 +214,47 @@ class ecopilot {
 
 	public static function log($_message, $_level = 'info') {
 		log::add(self::LOG_ID, $_level, $_message);
+	}
+
+	/**
+	 * Migration : les grandeurs créées avant la 0.1.11 portent toutes le seuil global
+	 * (souvent 15 ou 60 min), y compris les contacts de porte qui n'auraient jamais dû en avoir.
+	 * On réaligne sur la valeur recommandée par type **uniquement** quand le seuil enregistré
+	 * est encore l'ancien défaut global — un seuil choisi à la main est conservé.
+	 */
+	public static function migrateFresh() {
+		if (config::byKey('freshByType', self::LOG_ID, 0) == 1) {
+			return 0;
+		}
+		$ancien = intval(config::byKey('freshDefault', self::LOG_ID, 60));
+		$changes = 0;
+		foreach (ecopilot_sonde::all() as $sonde) {
+			$modifie = false;
+			foreach ($sonde->getGrandeurs() as $key => $conf) {
+				$def = self::grandeurDef($sonde, $key);
+				$neuf = self::freshDefault($def);
+				$actuel = (isset($conf['fresh']) && $conf['fresh'] !== '') ? intval($conf['fresh']) : $ancien;
+				if ($actuel === $neuf) {
+					continue;
+				}
+				if ($actuel !== $ancien) {
+					continue; /* seuil choisi explicitement : on n'y touche pas */
+				}
+				$conf['fresh'] = $neuf;
+				$sonde->setGrandeur($key, $conf);
+				$changes++;
+				$modifie = true;
+			}
+			if ($modifie) {
+				$sonde->save();
+				self::refreshSonde($sonde);
+			}
+		}
+		config::save('freshByType', 1, self::LOG_ID);
+		if ($changes > 0) {
+			self::log('seuils de fraîcheur realignés sur le type de valeur : ' . $changes . ' grandeur(s)');
+		}
+		return $changes;
 	}
 
 	/* ------------------------------------------------------------------ objet d'accueil */
@@ -509,7 +565,9 @@ class ecopilot {
 		} else {
 			$value = self::aggregateNum($_read['nums'], $agg);
 		}
-		$fresh = isset($_conf['fresh']) ? intval($_conf['fresh']) : intval(config::byKey('freshDefault', self::LOG_ID, 60));
+		/* Seuil : celui réglé sur la grandeur, sinon celui recommandé pour ce type de valeur.
+		 * 0 = jamais muette (état poussé sur événement : une porte fermée est silencieuse). */
+		$fresh = (isset($_conf['fresh']) && $_conf['fresh'] !== '') ? intval($_conf['fresh']) : self::freshDefault($_def);
 		$muette = ($_read['age'] !== null && $fresh > 0 && $_read['age'] > $fresh) ? 1 : 0;
 		return array(
 			'value' => $value,
