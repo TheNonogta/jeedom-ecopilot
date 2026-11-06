@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.9';
+	const VERSION = '0.1.10';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -537,9 +537,10 @@ class ecopilot {
 		if (is_bool($_value)) {
 			$_value = $_value ? 1 : 0;
 		}
-		/* Un entier 0 n'est pas enregistré par le cœur (il le transforme en vide) :
-		 * on l'écrit sous forme de chaîne, ce qui donne bien « 0 » en base. */
-		if (is_int($_value)) {
+		/* Un zéro n'est pas enregistré par le cœur quand il est passé en float (0.0) :
+		 * la colonne `value` ressort vide alors que la mesure vaut bien zéro (cas réel :
+		 * indice UV, CO2, luminosité à l'arrêt). On l'écrit toujours sous forme de chaîne. */
+		if (is_int($_value) || (is_float($_value) && floatval($_value) == 0)) {
 			$_value = strval($_value);
 		}
 		/* L'ordre compte : la valeur doit être en base AVANT event(), car event() prévient

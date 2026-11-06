@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.10 — 2026-11-06
+
+Une mesure qui vaut **zéro** était perdue : le calcul renvoie un nombre décimal (`0.0`), et le cœur ne l'enregistre
+pas — la colonne `value` restait vide, l'écran affichait `—` alors que le capteur mesurait bien zéro. Touchait les
+indices UV, le CO2 et toute luminosité à l'arrêt ; les pièces concernées étaient écartées des moyennes.
+
+Désormais le zéro est écrit sous forme de chaîne, comme l'était déjà le zéro entier.
+
 ## 0.1.9 — 2026-10-25
 
 Correctif : une sonde créée dans une pièce s'affichait bien avec le nom de la pièce, mais la **pièce restait à
