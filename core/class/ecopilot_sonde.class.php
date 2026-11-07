@@ -132,6 +132,13 @@ class ecopilot_sonde extends eqLogic {
 		return $nb;
 	}
 
+	public function preSave() {
+		if (!ecopilot::nomDisponible($this, $this->getName(), $this->getObject_id())) {
+			throw new Exception(__('Un équipement nommé « ', __FILE__) . $this->getName()
+				. __(' » existe déjà dans cet objet. Choisis un autre nom, ou supprime l\'ancien.', __FILE__));
+		}
+	}
+
 	public function postSave() {
 		/* Toute sauvegarde d'une sonde recale son rattachement à une pièce. */
 		ecopilot::syncSondePiece($this);

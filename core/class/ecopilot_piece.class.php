@@ -106,6 +106,13 @@ class ecopilot_piece extends eqLogic {
 		return $keys;
 	}
 
+	public function preSave() {
+		if (!ecopilot::nomDisponible($this, $this->getName(), $this->getObject_id())) {
+			throw new Exception(__('Une pièce nommée « ', __FILE__) . $this->getName()
+				. __(' » existe déjà dans cet objet. Choisis un autre nom.', __FILE__));
+		}
+	}
+
 	public function postSave() {
 		return;
 	}

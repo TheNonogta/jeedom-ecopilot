@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.14';
+	const VERSION = '0.1.15';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -210,6 +210,26 @@ class ecopilot {
 
 	public static function genericType($_key) {
 		return isset(self::$genericTypes[$_key]) ? self::$genericTypes[$_key] : '';
+	}
+
+	/**
+	 * Le cœur impose un index unique (nom, objet) sur eqLogic : renommer un équipement avec un nom
+	 * déjà pris dans le même objet remonte une erreur MySQL brute, illisible dans l'interface.
+	 * On vérifie avant, pour renvoyer un message clair.
+	 */
+	public static function nomDisponible($_eqLogic, $_name, $_objectId) {
+		if ($_name === '' || $_name === null) {
+			return true;
+		}
+		$sql = 'SELECT id FROM eqLogic WHERE name = :name AND id != :id';
+		$params = array('name' => $_name, 'id' => is_object($_eqLogic) ? intval($_eqLogic->getId()) : 0);
+		if ($_objectId === null || $_objectId === '') {
+			$sql .= ' AND object_id IS NULL';
+		} else {
+			$sql .= ' AND object_id = :obj';
+			$params['obj'] = intval($_objectId);
+		}
+		return !is_array(DB::Prepare($sql, $params, DB::FETCH_TYPE_ROW));
 	}
 
 	public static function log($_message, $_level = 'info') {

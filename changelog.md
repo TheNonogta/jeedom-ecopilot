@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.15 — 2026-11-06
+
+Renommer une sonde avec un nom déjà utilisé dans le même objet affichait l'erreur MySQL brute du cœur
+(`Duplicate entry … for key 'unique'`), incompréhensible dans l'interface.
+
+Le plugin vérifie maintenant avant d'enregistrer et répond : « Un équipement nommé « X » existe déjà dans cet objet.
+Choisis un autre nom, ou supprime l'ancien. » — idem pour les pièces.
+
 ## 0.1.14 — 2026-11-06
 
 Toutes les **mesures** passent à **24 h** avant d'être déclarées muettes : un capteur qui ne remonte qu'une fois par
