@@ -1,5 +1,11 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.16 — 2026-11-06
+
+Le panneau **« Diagnostic des sources »** est retiré de la fiche d'une sonde. La colonne « Source lue » du tableau
+« Valeurs lues et état » reste : c'est elle qui donne l'id de la commande et la valeur brute, suffisamment pour
+diagnostiquer sans sortir du tableau.
+
 ## 0.1.15 — 2026-11-06
 
 Renommer une sonde avec un nom déjà utilisé dans le même objet affichait l'erreur MySQL brute du cœur

@@ -275,16 +275,6 @@ $(document).on('input', '.ep-icones-filtre', function () {
 	});
 });
 
-$(document).on('click', '.bt_diagSel', function () {
-	var ta = document.querySelector('.ep-diag');
-	if (!ta) {
-		return;
-	}
-	ta.focus();
-	ta.select();
-	try {
-		document.execCommand('copy');
-		jeedomUtils.showAlert({message: '{{Diagnostic copié}}', level: 'success'});
 	} catch (e) {
 		jeedomUtils.showAlert({message: '{{Sélectionne le texte puis copie-le}}', level: 'warning'});
 	}
