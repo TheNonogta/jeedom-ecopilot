@@ -76,3 +76,8 @@
 .ecopilot .ep-icones-choix i {
 	margin-right: 4px;
 }
+
+/* en-têtes de tableau triables (aucune couleur codée en dur : on suit le thème du cœur) */
+#ep_tableSondes th.ep_th { cursor: pointer; white-space: nowrap; }
+#ep_tableSondes th.ep_th .ep_sortIcon { opacity: .7; font-size: .9em; }
+#ep_tableSondes th.ep_th:hover .ep_sortIcon { opacity: 1; }

@@ -127,10 +127,6 @@ function ecopilot_pickIcone($_class, $_value) {
 				<i class="fas fa-broadcast-tower"></i> {{Sondes}}
 				<span class="label label-info"><?php echo count($sondes); ?> {{sonde(s)}} · <?php echo $nbGrandeurs; ?> {{grandeur(s)}}</span>
 				<div class="pull-right">
-					<div class="btn-group">
-						<a class="btn btn-sm btn-default <?php echo ($vue == 'galerie') ? 'active' : ''; ?>" href="<?php echo $base; ?>&tab=sondes&vue=galerie"><i class="fas fa-th"></i> {{Galerie}}</a>
-						<a class="btn btn-sm btn-default <?php echo ($vue == 'tableau') ? 'active' : ''; ?>" href="<?php echo $base; ?>&tab=sondes&vue=tableau"><i class="fas fa-list"></i> {{Tableau}}</a>
-					</div>
 					<button class="btn btn-sm btn-default bt_refreshAll"><i class="fas fa-sync"></i> {{Tout actualiser}}</button>
 					<button class="btn btn-sm btn-success bt_newSonde"><i class="fas fa-plus"></i> {{Ajouter une sonde}}</button>
 				</div>
@@ -146,99 +142,61 @@ function ecopilot_pickIcone($_class, $_value) {
 		<div class="alert alert-info">{{Aucune sonde pour l'instant : commence par « Ajouter une sonde ».}}</div>
 <?php } ?>
 
-<?php if ($vue == 'galerie') { ?>
-		<div class="row">
-			<?php foreach ($sondes as $sonde) {
-				$etat = $sonde->getEtatLabel();
-				$pieceSonde = $sonde->getPiece();
-				?>
-			<div class="col-lg-4 col-md-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<i class="<?php echo ecopilot_icon($pieceSonde); ?>"></i>
-						<?php echo htmlspecialchars($sonde->getName()); ?>
-						<span class="label <?php echo $etat['class']; ?>"><?php echo $etat['label']; ?></span>
-						<div class="pull-right">
-							<a class="btn btn-xs btn-default" href="<?php echo $base; ?>&tab=sondes&sonde_id=<?php echo $sonde->getId(); ?>" title="{{Réglage}}"><i class="fas fa-cog"></i></a>
-						</div>
-					</div>
-					<div class="panel-body">
-						<div class="row">
-							<?php foreach ($sonde->getGrandeurs() as $key => $conf) {
-								$def = ecopilot::grandeurDef($sonde, $key);
-								$cmd = ecopilot::cmdOf($sonde, 'g_' . $key);
-								$muette = ecopilot::cmdOf($sonde, 'g_' . $key . '_muette');
-								$valeur = is_object($cmd) ? $cmd->getValue() : '';
-								$unite = is_object($cmd) ? $cmd->getUnite() : '';
-								$nbCol = (count($sonde->getGrandeurs()) > 2) ? 4 : 6;
-								?>
-							<div class="col-xs-<?php echo $nbCol; ?> text-center">
-								<span style="font-size:20px;font-weight:bold;<?php echo (is_object($muette) && $muette->getValue() == 1) ? 'text-decoration:line-through;' : ''; ?>">
-									<?php echo ecopilot_aff($valeur, 1); ?>
-								</span>
-								<small><?php echo htmlspecialchars($unite); ?></small>
-								<div><small><?php echo htmlspecialchars($def['label']); ?></small></div>
-							</div>
-							<?php } ?>
-						</div>
-					</div>
-					<div class="panel-footer">
-						<small>
-							<?php if (is_object($pieceSonde)) { ?><i class="fas fa-home"></i> <?php echo htmlspecialchars($pieceSonde->getName()); ?> · <?php } ?>
-							<?php echo $sonde->getNbSources(); ?> {{source(s)}}
-							· <?php echo ($sonde->getConfiguration('last_read', '') != '') ? htmlspecialchars($sonde->getConfiguration('last_read')) : '{{jamais lu}}'; ?>
-						</small>
-					</div>
-				</div>
+<div class="row" style="margin-bottom:10px;">
+			<div class="col-sm-5">
+				<input type="text" class="form-control input-sm ep_filtre" placeholder="{{Filtrer par sonde ou pièce…}}">
 			</div>
-			<?php } ?>
-			<?php if (count($sondes) > 0) { ?>
-			<div class="col-lg-4 col-md-6">
-				<div class="panel panel-default" style="border-style:dashed;">
-					<div class="panel-body text-center" style="padding:40px 10px;">
-						<button class="btn btn-success bt_newSonde"><i class="fas fa-plus"></i> {{Ajouter une sonde}}</button>
-						<div><small>{{Nom, pièce, puis tu coches ses grandeurs et tu les relies.}}</small></div>
-					</div>
-				</div>
+			<div class="col-sm-3">
+				<select class="form-control input-sm ep_filtreEtat">
+					<option value="">{{Tous les états}}</option>
+					<option value="ok">{{OK}}</option>
+					<option value="a_relier">{{À relier}}</option>
+					<option value="muette">{{Source muette}}</option>
+				</select>
 			</div>
-			<?php } ?>
+			<div class="col-sm-4 text-right">
+				<small class="help-block" style="margin:0;">{{Clique un en-tête de colonne pour trier, du plus petit au plus grand puis l'inverse.}}</small>
+			</div>
 		</div>
-<?php } else { ?>
-		<table class="table table-condensed table-striped">
+		<div class="table-responsive">
+		<table class="table table-condensed table-striped" id="ep_tableSondes">
 			<thead>
 				<tr>
-					<th>{{Sonde}}</th>
-					<th>{{Pièce}}</th>
+					<th class="ep_th" data-type="text">{{Sonde}} <i class="fas fa-sort ep_sortIcon"></i></th>
+					<th class="ep_th" data-type="text">{{Pièce}} <i class="fas fa-sort ep_sortIcon"></i></th>
 					<?php foreach (array_keys($clesUtilisees) as $key) {
 						$def = ecopilot::grandeur($key);
 						?>
-					<th><?php echo htmlspecialchars(is_array($def) ? $def['label'] : $key); ?></th>
+					<th class="ep_th" data-type="num"><?php echo htmlspecialchars(is_array($def) ? $def['label'] : $key); ?> <i class="fas fa-sort ep_sortIcon"></i></th>
 					<?php } ?>
-					<th>{{Sources}}</th>
-					<th>{{Dernière lecture}}</th>
-					<th>{{État}}</th>
+					<th class="ep_th" data-type="num">{{Sources}} <i class="fas fa-sort ep_sortIcon"></i></th>
+					<th class="ep_th" data-type="text">{{Dernière lecture}} <i class="fas fa-sort ep_sortIcon"></i></th>
+					<th class="ep_th" data-type="text">{{État}} <i class="fas fa-sort ep_sortIcon"></i></th>
 					<th></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($sondes as $sonde) {
 					$etat = $sonde->getEtatLabel();
+					$etatCle = $sonde->getEtat();
 					$pieceSonde = $sonde->getPiece();
+					$recherche = mb_strtolower($sonde->getName() . ' ' . (is_object($pieceSonde) ? $pieceSonde->getName() : ''));
 					?>
-				<tr>
-					<td><b><?php echo htmlspecialchars($sonde->getName()); ?></b></td>
+				<tr data-etat="<?php echo htmlspecialchars($etatCle); ?>" data-nom="<?php echo htmlspecialchars($recherche); ?>">
+					<td><?php echo htmlspecialchars($sonde->getName()); ?></td>
 					<td><?php echo is_object($pieceSonde) ? htmlspecialchars($pieceSonde->getName()) : '—'; ?></td>
 					<?php foreach (array_keys($clesUtilisees) as $key) {
 						$conf = $sonde->getGrandeur($key);
 						if (!is_array($conf)) {
-							echo '<td>—</td>';
+							echo '<td data-val=""></td>';
 							continue;
 						}
 						$cmd = ecopilot::cmdOf($sonde, 'g_' . $key);
 						$muette = ecopilot::cmdOf($sonde, 'g_' . $key . '_muette');
 						$valeur = is_object($cmd) ? $cmd->getValue() : '';
 						$unite = is_object($cmd) ? $cmd->getUnite() : '';
-						echo '<td>' . ecopilot_aff($valeur, 1) . ' <small>' . htmlspecialchars($unite) . '</small>';
+						$brut = ($valeur === '' || $valeur === null) ? '' : $valeur;
+						echo '<td data-val="' . htmlspecialchars($brut) . '">' . ecopilot_aff($valeur, 1) . ' <small>' . htmlspecialchars($unite) . '</small>';
 						if (is_object($muette) && $muette->getValue() == 1) {
 							echo ' <i class="fas fa-exclamation-triangle text-warning" title="{{Source muette}}"></i>';
 						}
@@ -247,15 +205,15 @@ function ecopilot_pickIcone($_class, $_value) {
 						}
 						echo '</td>';
 					} ?>
-					<td><?php echo $sonde->getNbSources(); ?></td>
+					<td data-val="<?php echo $sonde->getNbSources(); ?>"><?php echo $sonde->getNbSources(); ?></td>
 					<td><?php echo ($sonde->getConfiguration('last_read', '') != '') ? htmlspecialchars($sonde->getConfiguration('last_read')) : '—'; ?></td>
 					<td><span class="label <?php echo $etat['class']; ?>"><?php echo $etat['label']; ?></span></td>
-					<td><a class="btn btn-xs btn-default" href="<?php echo $base; ?>&tab=sondes&vue=tableau&sonde_id=<?php echo $sonde->getId(); ?>"><i class="fas fa-cog"></i></a></td>
+					<td><a class="btn btn-xs btn-default" href="<?php echo $base; ?>&tab=sondes&sonde_id=<?php echo $sonde->getId(); ?>"><i class="fas fa-cog"></i></a></td>
 				</tr>
 				<?php } ?>
 			</tbody>
 		</table>
-<?php } ?>
+		</div>
 
 <?php if (is_object($sondeSel)) {
 	$etatSel = $sondeSel->getEtatLabel();

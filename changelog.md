@@ -1,5 +1,17 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.13 — 2026-11-06
+
+Onglet **Sondes** : la galerie de cartes est retirée, le **tableau est désormais la seule vue** — il tient plus
+d'informations à l'écran et évite d'avoir à choisir entre deux présentations.
+
+Le tableau devient triable et filtrable :
+
+- un clic sur un en-tête de colonne trie du plus petit au plus grand, un second clic inverse ; les cases vides
+  restent toujours en bas ;
+- un champ de recherche filtre sur le nom de la sonde et de la pièce ;
+- une liste déroulante filtre sur l'état (OK / à relier / source muette).
+
 ## 0.1.12 — 2026-11-06
 
 L'indice **UV** rejoint les valeurs pour lesquelles le silence est normal : un capteur d'UV ne remonte que lorsque la

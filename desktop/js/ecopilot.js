@@ -372,3 +372,65 @@ $(document).on('click', '.bt_simRandom', function () {
 		epReload();
 	});
 });
+
+/* ------------------------------------------------------ tri et filtre du tableau des sondes */
+
+(function () {
+	var tri = {index: -1, sens: 1};
+
+	function valeurDe(tr, index, type) {
+		var td = $(tr).children('td').eq(index);
+		if (td.length === 0) { return null; }
+		if (type === 'num') {
+			var brut = td.data('val');
+			if (brut === undefined || brut === null || brut === '') { return null; }
+			var n = parseFloat(String(brut).replace(',', '.'));
+			return isNaN(n) ? null : n;
+		}
+		return $.trim(td.text()).toLowerCase();
+	}
+
+	$(document).on('click', '#ep_tableSondes th.ep_th', function () {
+		var th = $(this);
+		var index = th.index();
+		var type = th.data('type');
+		if (tri.index === index) {
+			tri.sens = -tri.sens;
+		} else {
+			tri.index = index;
+			tri.sens = 1;
+		}
+		var max = $('#ep_tableSondes th.ep_th').length;
+		for (var i = 0; i < max; i++) {
+			$('#ep_tableSondes th.ep_th').eq(i).find('.ep_sortIcon')
+				.removeClass('fa-sort-up fa-sort-down').addClass('fa-sort');
+		}
+		th.find('.ep_sortIcon').removeClass('fa-sort').addClass(tri.sens > 0 ? 'fa-sort-up' : 'fa-sort-down');
+
+		var lignes = $('#ep_tableSondes tbody').children('tr').get();
+		lignes.sort(function (a, b) {
+			var va = valeurDe(a, index, type);
+			var vb = valeurDe(b, index, type);
+			if (va === null && vb === null) { return 0; }
+			if (va === null) { return 1; }  /* une case vide reste toujours en bas */
+			if (vb === null) { return -1; }
+			if (typeof va === 'number' && typeof vb === 'number') { return (va - vb) * tri.sens; }
+			return String(va).localeCompare(String(vb), 'fr') * tri.sens;
+		});
+		$('#ep_tableSondes tbody').append(lignes);
+	});
+
+	function filtrer() {
+		var q = $.trim($('.ep_filtre').val()).toLowerCase();
+		var etat = $('.ep_filtreEtat').val();
+		$('#ep_tableSondes tbody tr').each(function () {
+			var ok = true;
+			if (q !== '' && String($(this).data('nom') || '').indexOf(q) === -1) { ok = false; }
+			if (etat !== '' && String($(this).data('etat') || '') !== etat) { ok = false; }
+			$(this).toggle(ok);
+		});
+	}
+
+	$(document).on('input', '.ep_filtre', filtrer);
+	$(document).on('change', '.ep_filtreEtat', filtrer);
+})();
