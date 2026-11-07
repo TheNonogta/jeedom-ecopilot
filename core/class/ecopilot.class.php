@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.16';
+	const VERSION = '0.1.17';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */

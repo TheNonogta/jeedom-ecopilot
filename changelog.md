@@ -1,5 +1,11 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.17 — 2026-11-06
+
+Correctif de la 0.1.16 : le retrait du panneau de diagnostic avait laissé un fragment de code JavaScript dans le
+fichier (`Uncaught SyntaxError: Unexpected token '}'`), ce qui cassait **toutes** les interactions de la page — plus
+aucun bouton ne répondait. Corrigé, et la syntaxe du fichier est désormais contrôlée avant publication.
+
 ## 0.1.16 — 2026-11-06
 
 Le panneau **« Diagnostic des sources »** est retiré de la fiche d'une sonde. La colonne « Source lue » du tableau

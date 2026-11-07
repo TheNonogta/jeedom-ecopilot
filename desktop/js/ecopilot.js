@@ -275,10 +275,6 @@ $(document).on('input', '.ep-icones-filtre', function () {
 	});
 });
 
-	} catch (e) {
-		jeedomUtils.showAlert({message: '{{Sélectionne le texte puis copie-le}}', level: 'warning'});
-	}
-});
 
 $(document).on('click', '.bt_newPiece', function () {
 	$('#md_newPiece').modal('show');
