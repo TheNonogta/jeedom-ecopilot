@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.13';
+	const VERSION = '0.1.14';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -217,6 +217,47 @@ class ecopilot {
 	}
 
 	/**
+	 * Révision 3 : toutes les mesures passent à 24 h (0.1.14).
+	 * Un capteur qui remonte une fois par jour ne doit pas être déclaré muet à la première heure.
+	 * Les grandeurs à « jamais muet » (0) le restent : 24 h serait plus strict, pas moins.
+	 */
+	public static function migrateFreshRev3() {
+		if (config::byKey('freshRev3', self::LOG_ID, 0) == 1) {
+			return 0;
+		}
+		$anciennes = array(30, 60, 120, 180, 1440);
+		$changes = 0;
+		foreach (ecopilot_sonde::all() as $sonde) {
+			$modifie = false;
+			foreach ($sonde->getGrandeurs() as $key => $conf) {
+				$actuel = (isset($conf['fresh']) && $conf['fresh'] !== '') ? intval($conf['fresh']) : null;
+				if ($actuel === 0) {
+					continue; /* jamais muet : on n'y touche pas */
+				}
+				if ($actuel !== null && !in_array($actuel, $anciennes)) {
+					continue; /* seuil choisi à la main */
+				}
+				if ($actuel === 1440) {
+					continue;
+				}
+				$conf['fresh'] = 1440;
+				$sonde->setGrandeur($key, $conf);
+				$changes++;
+				$modifie = true;
+			}
+			if ($modifie) {
+				$sonde->save();
+				self::refreshSonde($sonde);
+			}
+		}
+		config::save('freshRev3', 1, self::LOG_ID);
+		if ($changes > 0) {
+			self::log('seuil de fraîcheur passé à 24 h sur ' . $changes . ' grandeur(s)');
+		}
+		return $changes;
+	}
+
+	/**
 	 * Révision 2 des seuils : l'UV passe de 120 min à « jamais muet ».
 	 * Un capteur d'UV ne remonte que quand la luminosité change vraiment — la nuit, il se tait
 	 * légitimement pendant des heures. On ne réaligne que les grandeurs restées à l'ancienne
@@ -255,7 +296,8 @@ class ecopilot {
 	 * est encore l'ancien défaut global — un seuil choisi à la main est conservé.
 	 */
 	public static function migrateFresh() {
-		$changes = self::migrateFreshRev2();
+		$changes = self::migrateFreshRev3();
+		$changes += self::migrateFreshRev2();
 		if (config::byKey('freshByType', self::LOG_ID, 0) == 1) {
 			return $changes;
 		}

@@ -11,7 +11,7 @@
      "type": "numeric",
      "unit": "°C",
      "icon": "fas fa-thermometer-half",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "ressenti",
@@ -19,7 +19,7 @@
      "type": "numeric",
      "unit": "°C",
      "icon": "fas fa-temperature-high",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "hygrometrie",
@@ -27,7 +27,7 @@
      "type": "numeric",
      "unit": "%",
      "icon": "fas fa-tint",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "humidite_absolue",
@@ -35,7 +35,7 @@
      "type": "numeric",
      "unit": "g/m³",
      "icon": "fas fa-water",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "point_rosee",
@@ -43,7 +43,7 @@
      "type": "numeric",
      "unit": "°C",
      "icon": "fas fa-snowflake",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "pression",
@@ -51,7 +51,7 @@
      "type": "numeric",
      "unit": "hPa",
      "icon": "fas fa-compress-arrows-alt",
-     "fresh": 60
+     "fresh": 1440
     }
    ]
   },
@@ -66,7 +66,7 @@
      "type": "numeric",
      "unit": "ppm",
      "icon": "fas fa-lungs",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "cov",
@@ -74,7 +74,7 @@
      "type": "numeric",
      "unit": "ppb",
      "icon": "fas fa-flask",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "hcho",
@@ -82,7 +82,7 @@
      "type": "numeric",
      "unit": "µg/m³",
      "icon": "fas fa-vial",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "pm1",
@@ -90,7 +90,7 @@
      "type": "numeric",
      "unit": "µg/m³",
      "icon": "fas fa-smog",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "pm25",
@@ -98,7 +98,7 @@
      "type": "numeric",
      "unit": "µg/m³",
      "icon": "fas fa-smog",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "pm10",
@@ -106,7 +106,7 @@
      "type": "numeric",
      "unit": "µg/m³",
      "icon": "fas fa-smog",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "co",
@@ -114,7 +114,7 @@
      "type": "numeric",
      "unit": "ppm",
      "icon": "fas fa-biohazard",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "aqi",
@@ -122,7 +122,7 @@
      "type": "numeric",
      "unit": "indice",
      "icon": "fas fa-heartbeat",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "radon",
@@ -130,7 +130,7 @@
      "type": "numeric",
      "unit": "Bq/m³",
      "icon": "fas fa-radiation",
-     "fresh": 120
+     "fresh": 1440
     }
    ]
   },
@@ -145,7 +145,7 @@
      "type": "numeric",
      "unit": "lx",
      "icon": "fas fa-sun",
-     "fresh": 120
+     "fresh": 1440
     },
     {
      "key": "luminance",
@@ -153,7 +153,7 @@
      "type": "numeric",
      "unit": "cd/m²",
      "icon": "fas fa-lightbulb",
-     "fresh": 120
+     "fresh": 1440
     },
     {
      "key": "uv",
@@ -169,7 +169,7 @@
      "type": "numeric",
      "unit": "W/m²",
      "icon": "fas fa-solar-panel",
-     "fresh": 120
+     "fresh": 1440
     },
     {
      "key": "temperature_couleur",
@@ -177,7 +177,7 @@
      "type": "numeric",
      "unit": "K",
      "icon": "fas fa-thermometer-quarter",
-     "fresh": 120
+     "fresh": 1440
     }
    ]
   },
@@ -192,7 +192,7 @@
      "type": "numeric",
      "unit": "km/h",
      "icon": "fas fa-wind",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "rafales",
@@ -200,7 +200,7 @@
      "type": "numeric",
      "unit": "km/h",
      "icon": "fas fa-wind",
-     "fresh": 180
+     "fresh": 1440
     },
     {
      "key": "vent_direction",
@@ -208,7 +208,7 @@
      "type": "numeric",
      "unit": "°",
      "icon": "fas fa-compass",
-     "fresh": 180
+     "fresh": 1440
     },
     {
      "key": "pluie_intensite",
@@ -216,7 +216,7 @@
      "type": "numeric",
      "unit": "mm/h",
      "icon": "fas fa-cloud-showers-heavy",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "pluie_cumul",
@@ -240,7 +240,7 @@
      "type": "numeric",
      "unit": "°C",
      "icon": "fas fa-seedling",
-     "fresh": 120
+     "fresh": 1440
     },
     {
      "key": "humidite_sol",
@@ -248,7 +248,7 @@
      "type": "numeric",
      "unit": "%",
      "icon": "fas fa-seedling",
-     "fresh": 120
+     "fresh": 1440
     },
     {
      "key": "ciel",
@@ -256,7 +256,7 @@
      "type": "string",
      "unit": "",
      "icon": "fas fa-cloud-sun",
-     "fresh": 120
+     "fresh": 1440
     }
    ]
   },
@@ -271,7 +271,7 @@
      "type": "numeric",
      "unit": "W",
      "icon": "fas fa-bolt",
-     "fresh": 30
+     "fresh": 1440
     },
     {
      "key": "puissance_apparente",
@@ -279,7 +279,7 @@
      "type": "numeric",
      "unit": "VA",
      "icon": "fas fa-plug",
-     "fresh": 30
+     "fresh": 1440
     },
     {
      "key": "energie_index",
@@ -319,7 +319,7 @@
      "type": "numeric",
      "unit": "V",
      "icon": "fas fa-bolt",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "courant",
@@ -327,7 +327,7 @@
      "type": "numeric",
      "unit": "A",
      "icon": "fas fa-bolt",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "frequence",
@@ -335,7 +335,7 @@
      "type": "numeric",
      "unit": "Hz",
      "icon": "fas fa-wave-square",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "facteur_puissance",
@@ -343,7 +343,7 @@
      "type": "numeric",
      "unit": "%",
      "icon": "fas fa-percentage",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "ecs",
@@ -351,7 +351,7 @@
      "type": "numeric",
      "unit": "°C",
      "icon": "fas fa-hot-tub",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "batterie",
@@ -390,7 +390,7 @@
      "type": "numeric",
      "unit": "L/h",
      "icon": "fas fa-water",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "eau_pression",
@@ -398,7 +398,7 @@
      "type": "numeric",
      "unit": "bar",
      "icon": "fas fa-gauge",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "gaz_index",
@@ -414,7 +414,7 @@
      "type": "numeric",
      "unit": "m³/h",
      "icon": "fas fa-fire",
-     "fresh": 60
+     "fresh": 1440
     }
    ]
   },
@@ -485,7 +485,7 @@
      "type": "numeric",
      "unit": "dB",
      "icon": "fas fa-volume-up",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "distance",
@@ -493,7 +493,7 @@
      "type": "numeric",
      "unit": "cm",
      "icon": "fas fa-ruler-horizontal",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "niveau",
@@ -501,7 +501,7 @@
      "type": "numeric",
      "unit": "%",
      "icon": "fas fa-fill-drip",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "personnes",
@@ -509,7 +509,7 @@
      "type": "numeric",
      "unit": "",
      "icon": "fas fa-users",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "impulsions",
@@ -517,7 +517,7 @@
      "type": "numeric",
      "unit": "",
      "icon": "fas fa-sort-numeric-up",
-     "fresh": 60
+     "fresh": 1440
     },
     {
      "key": "etat_equipement",
@@ -549,7 +549,7 @@
      "type": "custom",
      "unit": "",
      "icon": "fas fa-plus",
-     "fresh": 60
+     "fresh": 1440
     }
    ]
   }

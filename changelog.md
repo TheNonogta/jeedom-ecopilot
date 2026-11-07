@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.14 — 2026-11-06
+
+Toutes les **mesures** passent à **24 h** avant d'être déclarées muettes : un capteur qui ne remonte qu'une fois par
+jour, ou dont le module ne pousse que sur variation, ne doit pas être signalé en défaut à la première heure.
+
+Les grandeurs déjà réglées sur « jamais muet » (ouverture, présence, mouvement, fumée, fuite, vibration, UV) le
+restent : 24 h serait plus strict, pas moins. La migration ne touche ni aux zéros ni aux seuils choisis à la main.
+
 ## 0.1.13 — 2026-11-06
 
 Onglet **Sondes** : la galerie de cartes est retirée, le **tableau est désormais la seule vue** — il tient plus
