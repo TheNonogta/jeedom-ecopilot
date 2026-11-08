@@ -36,7 +36,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.19';
+	const VERSION = '0.1.20';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -882,8 +882,15 @@ class ecopilot {
 				$humis[] = $entry['humi'];
 			}
 		}
+		$lumis = array();
+		foreach ($interieurs as $entry) {
+			if ($entry['lumi'] !== null) {
+				$lumis[] = $entry['lumi'];
+			}
+		}
 		$tempMaison = count($temps) > 0 ? array_sum($temps) / count($temps) : null;
 		$humiMaison = count($humis) > 0 ? array_sum($humis) / count($humis) : null;
+		$lumiMaison = count($lumis) > 0 ? array_sum($lumis) / count($lumis) : null;
 		$extTemps = array();
 		foreach ($exterieurs as $entry) {
 			if ($entry['temp'] !== null) {
@@ -893,6 +900,8 @@ class ecopilot {
 		$tempExt = count($extTemps) > 0 ? array_sum($extTemps) / count($extTemps) : null;
 		$plusFroide = null;
 		$plusFroidePiece = '';
+		$plusChaude = null;
+		$plusChaudePiece = '';
 		foreach ($interieurs as $entry) {
 			if ($entry['temp'] === null) {
 				continue;
@@ -901,14 +910,22 @@ class ecopilot {
 				$plusFroide = $entry['temp'];
 				$plusFroidePiece = $entry['piece']->getName();
 			}
+			if ($plusChaude === null || $entry['temp'] > $plusChaude) {
+				$plusChaude = $entry['temp'];
+				$plusChaudePiece = $entry['piece']->getName();
+			}
 		}
 		$cmds = array(
 			'temperature' => array('Température maison', 'numeric', '°C', 'TEMPERATURE', 1),
 			'hygrometrie' => array('Hygrométrie maison', 'numeric', '%', 'HUMIDITY', 2),
 			'ecart' => array('Écart intérieur / extérieur', 'numeric', '°C', '', 3),
-			'plus_froide' => array('Pièce la plus froide', 'numeric', '°C', 'TEMPERATURE', 4),
-			'plus_froide_piece' => array('Pièce la plus froide — nom', 'string', '', '', 5),
-			'pieces' => array('Pièces comptées', 'numeric', '', '', 6),
+			'eclairement' => array('Luminosité maison', 'numeric', 'lx', '', 4),
+			'temperature_ext' => array('Température extérieure', 'numeric', '°C', 'TEMPERATURE', 5),
+			'plus_froide' => array('Pièce la plus froide', 'numeric', '°C', 'TEMPERATURE', 6),
+			'plus_froide_piece' => array('Pièce la plus froide — nom', 'string', '', '', 7),
+			'plus_chaude' => array('Pièce la plus chaude', 'numeric', '°C', 'TEMPERATURE', 8),
+			'plus_chaude_piece' => array('Pièce la plus chaude — nom', 'string', '', '', 9),
+			'pieces' => array('Pièces comptées', 'numeric', '', '', 10),
 		);
 		foreach ($cmds as $logicalId => $def) {
 			self::ensureCmd($maison, $logicalId, $def[0], array(
@@ -925,12 +942,22 @@ class ecopilot {
 		if ($humiMaison !== null) {
 			self::posCmdValue(self::cmdOf($maison, 'hygrometrie'), round($humiMaison, 0));
 		}
+		if ($lumiMaison !== null) {
+			self::posCmdValue(self::cmdOf($maison, 'eclairement'), round($lumiMaison, 0));
+		}
+		if ($tempExt !== null) {
+			self::posCmdValue(self::cmdOf($maison, 'temperature_ext'), round($tempExt, 1));
+		}
 		if ($tempMaison !== null && $tempExt !== null) {
 			self::posCmdValue(self::cmdOf($maison, 'ecart'), round($tempMaison - $tempExt, 1));
 		}
 		if ($plusFroide !== null) {
 			self::posCmdValue(self::cmdOf($maison, 'plus_froide'), round($plusFroide, 1));
 			self::posCmdValue(self::cmdOf($maison, 'plus_froide_piece'), $plusFroidePiece);
+		}
+		if ($plusChaude !== null) {
+			self::posCmdValue(self::cmdOf($maison, 'plus_chaude'), round($plusChaude, 1));
+			self::posCmdValue(self::cmdOf($maison, 'plus_chaude_piece'), $plusChaudePiece);
 		}
 		self::posCmdValue(self::cmdOf($maison, 'pieces'), count($temps));
 	}

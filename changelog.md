@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.20 — 2026-11-06
+
+L'onglet **Pièces** ouvre désormais sur les valeurs de la maison, avec le calcul rappelé pour chacune : température,
+hygrométrie et luminosité maison (moyennes des pièces intérieures), température extérieure, écart intérieur /
+extérieur, pièce la plus froide et **pièce la plus chaude** — cette dernière est nouvelle, avec sa température et son
+nom.
+
+Trois commandes sont ajoutées à l'équipement « Valeurs calculées » : `eclairement`, `temperature_ext`, `plus_chaude`
+et `plus_chaude_piece`. Elles sont exploitables dans les scénarios comme les autres.
+
 ## 0.1.19 — 2026-11-06
 
 Retrait de l'encart bleu de la colonne de gauche (« Le plugin ne parle à aucun matériel… » avec le décompte des

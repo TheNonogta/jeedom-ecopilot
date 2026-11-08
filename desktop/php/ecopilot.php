@@ -405,6 +405,45 @@ function ecopilot_pickIcone($_class, $_value) {
 			</div>
 		</div>
 
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<i class="fas fa-house-chimney"></i> {{Valeurs de la maison}}
+				<div class="pull-right"><button class="btn btn-sm btn-default bt_refreshAll"><i class="fas fa-sync"></i> {{Recalculer}}</button></div>
+			</div>
+			<table class="table table-condensed">
+				<tbody>
+					<?php
+					$lignesMaison = array(
+						array('temperature', '{{Température maison}}', '°C', '{{Moyenne des pièces intérieures}}'),
+						array('hygrometrie', '{{Hygrométrie maison}}', '%', '{{Moyenne des pièces intérieures}}'),
+						array('eclairement', '{{Luminosité maison}}', 'lx', '{{Moyenne des pièces intérieures}}'),
+						array('temperature_ext', '{{Température extérieure}}', '°C', ''),
+						array('ecart', '{{Écart intérieur / extérieur}}', '°C', '{{Température maison moins température extérieure}}'),
+						array('plus_froide', '{{Pièce la plus froide}}', '°C', '{{Température de la pièce intérieure la plus froide}}'),
+						array('plus_chaude', '{{Pièce la plus chaude}}', '°C', '{{Température de la pièce intérieure la plus chaude}}'),
+					);
+					foreach ($lignesMaison as $ligne) {
+						$cmd = ecopilot::cmdOf($maison, $ligne[0]);
+						$nomPiece = '';
+						if ($ligne[0] == 'plus_froide' || $ligne[0] == 'plus_chaude') {
+							$cmdPiece = ecopilot::cmdOf($maison, $ligne[0] . '_piece');
+							$nomPiece = is_object($cmdPiece) ? trim($cmdPiece->getValue()) : '';
+						}
+						?>
+					<tr>
+						<td style="width:230px;"><b><?php echo $ligne[1]; ?></b></td>
+						<td style="width:170px;">
+							<?php echo is_object($cmd) ? ecopilot_aff($cmd->getValue(), 1) : '—'; ?>
+							<small><?php echo htmlspecialchars($ligne[2]); ?></small>
+							<?php if ($nomPiece != '') { ?><small>· <?php echo htmlspecialchars($nomPiece); ?></small><?php } ?>
+						</td>
+						<td><small><?php echo $ligne[3]; ?></small></td>
+					</tr>
+					<?php } ?>
+				</tbody>
+			</table>
+		</div>
+
 <?php if (count($pieces) == 0) { ?>
 		<div class="alert alert-info">{{Aucune pièce pour l'instant.}}</div>
 <?php } ?>
@@ -528,11 +567,15 @@ function ecopilot_pickIcone($_class, $_value) {
 						'temperature' => "{{Moyenne des pièces intérieures qui comptent, à partir de leurs températures de pièce.}}",
 						'hygrometrie' => "{{Moyenne des pièces intérieures qui comptent.}}",
 						'ecart' => "{{Température maison moins température extérieure.}}",
+						'eclairement' => "{{Moyenne des pièces intérieures qui comptent.}}",
+						'temperature_ext' => "{{Moyenne des pièces extérieures.}}",
 						'plus_froide' => "{{Température de la pièce intérieure la plus froide.}}",
 						'plus_froide_piece' => "{{Nom de cette pièce.}}",
+						'plus_chaude' => "{{Température de la pièce intérieure la plus chaude.}}",
+						'plus_chaude_piece' => "{{Nom de cette pièce.}}",
 						'pieces' => "{{Nombre de pièces comptées dans la moyenne de la maison.}}",
 					);
-foreach (array('temperature', 'hygrometrie', 'ecart', 'plus_froide', 'plus_froide_piece', 'pieces') as $logicalId) {
+foreach (array('temperature', 'hygrometrie', 'ecart', 'eclairement', 'temperature_ext', 'plus_froide', 'plus_froide_piece', 'plus_chaude', 'plus_chaude_piece', 'pieces') as $logicalId) {
 	$cmd = ecopilot::cmdOf($maison, $logicalId);
 	if (!is_object($cmd)) {
 		continue;
