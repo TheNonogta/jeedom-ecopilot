@@ -37,7 +37,7 @@ require_once __DIR__ . '/ecopilot_opti.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.2.7';
+	const VERSION = '0.2.8';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -436,6 +436,18 @@ class ecopilot {
 			'order' => 0,
 		), $_options);
 		$cmd = self::cmdOf($_eqLogic, $_logicalId);
+		if (!is_object($cmd)) {
+			/* Une commande du même nom peut déjà exister sur cet équipement (créée par une version
+			 * antérieure, ou renommée) : on la récupère au lieu de heurter l'index unique
+			 * (eqLogic_id, name) du cœur, qui ferait échouer l'action. */
+			foreach ($_eqLogic->getCmd() as $existant) {
+				if ($existant->getName() == $_name) {
+					$cmd = $existant;
+					$cmd->setLogicalId($_logicalId); /* on rétablit l'identifiant attendu */
+					break;
+				}
+			}
+		}
 		if (!is_object($cmd)) {
 			$class = get_class($_eqLogic) . 'Cmd';
 			$cmd = class_exists($class) ? new $class() : new cmd();

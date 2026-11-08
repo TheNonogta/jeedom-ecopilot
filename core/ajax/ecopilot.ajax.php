@@ -82,6 +82,11 @@ try {
 		if (!is_object($sonde) || $def === null) {
 			throw new Exception(__('Grandeur inconnue', __FILE__));
 		}
+		/* Ne jamais écraser une grandeur existante : on perdrait ses sources reliées. */
+		$existante = $sonde->getGrandeur($key);
+		if (is_array($existante)) {
+			throw new Exception(__('Cette grandeur est déjà activée sur cette sonde', __FILE__));
+		}
 		$sonde->setGrandeur($key, array(
 			'sources' => array(),
 			'agg' => ($def['type'] == 'binary') ? 'or' : 'mean',

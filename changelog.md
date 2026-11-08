@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.8 — 2026-11-06
+
+Ajouter une grandeur à une sonde pouvait échouer sur `Duplicate entry '95-Hygrométrie (humidité relative)'
+for key 'unique'` : une commande portant déjà ce nom existait sur l'équipement, mais la création ne la retrouvait
+pas par son identifiant logique et tentait une insertion. Elle est maintenant récupérée par son nom plutôt que
+recréée, ce qui évite de heurter l'index unique du cœur, et son identifiant logique est rétabli.
+
+Au passage : cliquer « Ajouter une grandeur » sur une grandeur **déjà activée** réinitialisait ses sources — donc
+les liens déjà faits étaient perdus. C'est désormais refusé avec un message clair.
+
 ## 0.2.7 — 2026-11-06
 
 **Journalisation complète des actions.** Chaque appel AJAX laisse une trace d'entrée (action + paramètres) en
