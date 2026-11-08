@@ -14,6 +14,7 @@ if (!isConnect('admin')) {
 $plugin = plugin::byId('ecopilot');
 include_file('desktop', 'ecopilot', 'css', 'ecopilot');
 include_file('desktop', 'ecopilot', 'js', 'ecopilot');
+require_once dirname(__FILE__) . '/../../core/class/ecopilot_opti.class.php';
 $tab = init('tab', 'sondes');
 $vue = init('vue', 'galerie');
 if ($tab == 'valeurs') { $tab = 'pieces'; } /* onglet fusionne dans Pièces (0.1.21) */
@@ -552,9 +553,168 @@ function ecopilot_pickIcone($_class, $_value) {
 		</div>
 <?php } ?>
 
-<?php } elseif ($tab == 'optimiseur') { ?>
+<?php } elseif ($tab == 'optimiseur') {
+
+	$pilotables = ecopilot_opti::pieces();
+	$modeOpti = ecopilot_opti::mode();
+	$journal = ecopilot_opti::journal();
+	$modes = array('confort' => '{{Confort}}', 'reduit' => '{{Réduit}}', 'absence' => '{{Absence}}', 'horsgel' => '{{Hors gel}}');
+	?>
 		<div class="panel panel-default">
-			<div class="panel-heading"><i class="fas fa-sliders-h"></i> {{Optimiseur}}</div>
+			<div class="panel-heading">
+				<i class="fas fa-sliders-h"></i> {{Optimiseur — chauffage}}
+				<span class="label label-info">{{observation}}</span>
+				<div class="pull-right">
+					<div class="btn-group">
+						<?php foreach ($modes as $cle => $libelle) { ?>
+						<button class="btn btn-sm btn-default ep_optiMode <?php echo ($modeOpti == $cle) ? 'active' : ''; ?>" data-mode="<?php echo $cle; ?>"><?php echo $libelle; ?></button>
+						<?php } ?>
+					</div>
+					<button class="btn btn-sm btn-default bt_refreshOpti"><i class="fas fa-sync"></i> {{Recalculer}}</button>
+				</div>
+			</div>
+			<div class="panel-body">
+				<span class="help-block" style="margin:0;">
+					{{Le moteur recalcule toutes les 5 minutes la consigne qu'il enverrait, et l'explique. Rien n'est appliqué : il observe, mesure la déperdition et l'inertie de chaque pièce, et écrit ses décisions — y compris celles de ne rien faire.}}
+				</span>
+			</div>
+		</div>
+
+<?php if (count($pilotables) == 0) { ?>
+		<div class="alert alert-info">{{Aucune pièce n'est encore réglée pour l'optimiseur : active une pièce dans le tableau des réglages ci-dessous et donne-lui ses consignes Confort et Réduit.}}</div>
+<?php } else { ?>
+		<div class="panel panel-default">
+			<div class="panel-heading"><i class="fas fa-fire"></i> {{Pièces chauffées}} <span class="label label-default"><?php echo count($pilotables); ?></span></div>
+			<div class="table-responsive">
+			<table class="table table-condensed">
+				<thead>
+					<tr>
+						<th>{{Pièce}}</th><th>{{Température}}</th><th>{{Consigne actuelle}}</th><th>{{Consigne proposée}}</th>
+						<th>{{Écart}}</th><th>{{Classe}}</th><th>{{Déperdition}}</th><th>{{Inertie}}</th><th>{{Puissance}}</th><th>{{Décision}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($pilotables as $piece) {
+						$d = $piece->getConfiguration('opti_last', array());
+						$m = isset($d['mesures']) ? $d['mesures'] : array('deperdition' => null, 'inertie' => null, 'suffisant' => false);
+						$classe = isset($d['classe']) ? $d['classe'] : null;
+						?>
+					<tr>
+						<td><b><?php echo htmlspecialchars($piece->getName()); ?></b></td>
+						<td><b><?php echo isset($d['temp']) && $d['temp'] !== null ? ecopilot_aff($d['temp'], 1) : '—'; ?></b> <small>°C</small></td>
+						<td><?php echo isset($d['consigne_actuelle']) && $d['consigne_actuelle'] !== null ? ecopilot_aff($d['consigne_actuelle'], 1) . ' °C' : '—'; ?></td>
+						<td><b><?php echo isset($d['proposee']) && $d['proposee'] !== null ? ecopilot_aff($d['proposee'], 1) . ' °C' : '—'; ?></b></td>
+						<td><?php echo isset($d['ecart']) && $d['ecart'] !== null ? sprintf('%+.1f °C', $d['ecart']) : '—'; ?></td>
+						<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'; ?></td>
+						<td><?php echo $m['deperdition'] === null ? '—' : number_format($m['deperdition'], 3, ',', '') . ' °C/h'; ?></td>
+						<td><?php echo $m['inertie'] === null ? '—' : intval($m['inertie']) . ' min'; ?></td>
+						<td><?php echo isset($d['puissance']) && $d['puissance'] !== null ? number_format($d['puissance'], 0, ',', ' ') . ' W' : '—'; ?></td>
+						<td><small><?php echo htmlspecialchars(isset($d['raison']) ? $d['raison'] : '—'); ?></small></td>
+					</tr>
+					<?php } ?>
+				</tbody>
+			</table>
+			</div>
+			<div class="panel-footer">
+				<small>{{Le classement n'est affiché qu'après assez de mesures par pièce ; en dessous, la colonne reste vide. Le mode courant s'applique à toutes les pièces.}}</small>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-7">
+				<div class="panel panel-default">
+					<div class="panel-heading"><i class="fas fa-chart-bar"></i> {{Classement énergétique}}</div>
+					<table class="table table-condensed" style="margin:0;">
+						<thead><tr><th>{{Pièce}}</th><th>{{Classe}}</th><th style="width:40%">{{Déperdition}}</th><th>{{Énergie du jour}}</th></tr></thead>
+						<tbody>
+							<?php foreach ($pilotables as $piece) {
+								$d = $piece->getConfiguration('opti_last', array());
+								$dep = isset($d['mesures']['deperdition']) ? $d['mesures']['deperdition'] : null;
+								$classe = isset($d['classe']) ? $d['classe'] : null;
+								$largeur = ($dep === null) ? 0 : max(4, min(100, round($dep / 0.4 * 100)));
+								?>
+							<tr>
+								<td><?php echo htmlspecialchars($piece->getName()); ?></td>
+								<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'; ?></td>
+								<td>
+									<div class="progress" style="margin:0;height:8px;"><div class="progress-bar" style="width:<?php echo $largeur; ?>%"></div></div>
+									<small><?php echo $dep === null ? '{{pas encore assez de mesures}}' : number_format($dep, 3, ',', '') . ' °C/h · ' . intval($d['mesures']['heures']) . ' h mesurées'; ?></small>
+								</td>
+								<td><?php echo isset($d['energie_jour']) && $d['energie_jour'] !== null ? number_format($d['energie_jour'], 2, ',', ' ') . ' kWh' : '—'; ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+					<div class="panel-footer"><small>A ≤ 0,05 · B 0,08 · C 0,12 · D 0,18 · E 0,25 · F 0,35 · G au-delà — seuils à recaler sur tes mesures.</small></div>
+				</div>
+			</div>
+			<div class="col-md-5">
+				<div class="panel panel-default">
+					<div class="panel-heading"><i class="fas fa-clipboard-list"></i> {{Journal des décisions}}</div>
+					<table class="table table-condensed table-striped" style="margin:0;">
+						<tbody>
+							<?php if (count($journal) == 0) { ?>
+							<tr><td><small>{{Aucune décision enregistrée pour l'instant.}}</small></td></tr>
+							<?php } foreach (array_slice($journal, 0, 12) as $ligne) { ?>
+							<tr>
+								<td style="width:60px;"><small><?php echo htmlspecialchars(substr($ligne['ts'], 11, 5)); ?></small></td>
+								<td><small><?php echo htmlspecialchars($ligne['raison']); ?></small></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+<?php } ?>
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><i class="fas fa-cog"></i> {{Réglages et liens, pièce par pièce}}</div>
+			<div class="table-responsive">
+			<table class="table table-condensed">
+				<thead>
+					<tr>
+						<th>{{Pièce}}</th><th>{{Pilotée}}</th><th>{{Confort}}</th><th>{{Réduit}}</th><th>{{Mini}}</th><th>{{Maxi}}</th>
+						<th>{{Température}}</th><th>{{État actif}}</th><th>{{Consigne actuelle}}</th><th>{{Puissance}}</th><th>{{Énergie}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($pieces as $piece) {
+						if ($piece->getPieceType() != 'interieur') { continue; }
+						$roles = array(
+							'temp' => '{{Température}}',
+							'etat' => '{{État actif}}',
+							'consigne' => '{{Consigne actuelle}}',
+							'puissance' => '{{Puissance}}',
+							'energie' => '{{Énergie}}',
+						);
+						?>
+					<tr>
+						<td><b><?php echo htmlspecialchars($piece->getName()); ?></b></td>
+						<td><input type="checkbox" class="ep_optiEnable" data-piece="<?php echo $piece->getId(); ?>" <?php echo ($piece->getConfiguration('opti_enable', 0) == 1) ? 'checked' : ''; ?>></td>
+						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="confort" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_confort', 20)); ?>"></td>
+						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="reduit" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_reduit', 17)); ?>"></td>
+						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="min" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_min', 8)); ?>"></td>
+						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="max" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_max', 24)); ?>"></td>
+						<?php foreach ($roles as $role => $libelle) {
+							$cmdId = $piece->getConfiguration('opti_' . $role, '');
+							$cmd = ($cmdId === '') ? null : cmd::byId($cmdId);
+							?>
+						<td>
+							<?php if (is_object($cmd)) { ?>
+							<span class="label label-default"><?php echo htmlspecialchars($cmd->getName()); ?></span>
+							<button class="btn btn-xs btn-default bt_optiUnlink" data-piece="<?php echo $piece->getId(); ?>" data-role="<?php echo $role; ?>" title="{{Détacher}}"><i class="fas fa-times"></i></button>
+							<?php } else { ?>
+							<button class="btn btn-xs btn-default bt_optiLien" data-piece="<?php echo $piece->getId(); ?>" data-role="<?php echo $role; ?>"><i class="fas fa-link"></i> {{Relier}}</button>
+							<?php } ?>
+						</td>
+						<?php } ?>
+					</tr>
+					<?php } ?>
+				</tbody>
+			</table>
+			</div>
+			<div class="panel-footer"><small>{{La température vient de la moyenne de la pièce si tu ne relies rien. L'ouverture est lue sur les sondes de la pièce : une ouverture ouverte coupe le chauffage.}}</small></div>
 		</div>
 
 <?php } else { ?>

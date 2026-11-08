@@ -17,6 +17,9 @@
  */
 
 /**
+require_once dirname(__FILE__) . '/ecopilot_opti.class.php';
+
+/**
  * Éco Pilot — classe maîtresse du plugin.
  *
  * Principe : le plugin ne parle à AUCUN matériel. L'utilisateur relie lui-même, pour chaque
@@ -36,7 +39,7 @@ require_once __DIR__ . '/ecopilot_simCmd.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.1.22';
+	const VERSION = '0.2.0';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -1081,6 +1084,12 @@ class ecopilot {
 			self::refreshPiece($piece);
 		}
 		self::refreshMaison();
+		/* l'optimiseur observe : il recalcule sa décision à chaque passage, sans jamais envoyer d'ordre */
+		try {
+			ecopilot_opti::refresh();
+		} catch (\Throwable $e) {
+			self::log('optimiseur : ' . $e->getMessage(), 'error');
+		}
 	}
 
 	public static function cron5() {

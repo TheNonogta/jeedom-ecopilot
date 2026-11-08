@@ -402,3 +402,61 @@ $(document).on('change', '.ep_pieceSondeCompte', function () {
 	$(document).on('input', '.ep_filtre', filtrer);
 	$(document).on('change', '.ep_filtreEtat', filtrer);
 })();
+
+/* -------------------------------------------------------------- optimiseur */
+
+$(document).on('click', '.ep_optiMode', function () {
+	epAjax({action: 'setOptiMode', mode: $(this).data('mode')}, function () {
+		epReload();
+	});
+});
+
+$(document).on('click', '.bt_refreshOpti', function () {
+	epAjax({action: 'refreshOpti'}, function () {
+		epAlert('{{Décisions recalculées}}');
+		epReload();
+	});
+});
+
+$(document).on('change', '.ep_optiReglage', function () {
+	var data = {action: 'saveOptiReglage', piece_id: $(this).data('piece')};
+	data[$(this).data('champ')] = $(this).val();
+	epAjax(data, function () {
+		epReload();
+	});
+});
+
+$(document).on('change', '.ep_optiEnable', function () {
+	epAjax({
+		action: 'saveOptiReglage',
+		piece_id: $(this).data('piece'),
+		enable: $(this).is(':checked') ? 1 : 0
+	}, function () {
+		epReload();
+	});
+});
+
+$(document).on('click', '.bt_optiLien', function () {
+	var pieceId = $(this).data('piece');
+	var role = $(this).data('role');
+	jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+		if (!result || !result.cmd) {
+			return;
+		}
+		epAjax({action: 'saveOptiLien', piece_id: pieceId, role: role, cmd_id: result.cmd.id}, function () {
+			epAlert('{{Commande reliée}}');
+			epReload();
+		});
+	});
+});
+
+$(document).on('click', '.bt_optiUnlink', function () {
+	epAjax({
+		action: 'saveOptiLien',
+		piece_id: $(this).data('piece'),
+		role: $(this).data('role'),
+		cmd_id: 0
+	}, function () {
+		epReload();
+	});
+});

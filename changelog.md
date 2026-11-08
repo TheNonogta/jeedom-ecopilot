@@ -1,5 +1,24 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.0 — 2026-11-06
+
+Onglet **Optimiseur** : premier moteur d'optimisation du chauffage, en **observation seule**.
+
+À chaque passage (5 min) et pour chaque pièce pilotée, il calcule la consigne qu'il enverrait, l'écrit avec sa
+raison, et mesure deux choses sur l'historique : la **déperdition** (°C perdus par heure et par degré d'écart avec
+l'extérieur) et l'**inertie** (minutes pour gagner 0,5 °C quand le chauffage tourne). Il en déduit un **classement
+énergétique A à G**, et affiche l'**énergie du jour** par pièce quand l'index kWh est relié.
+
+Règles de décision : écart maximal 0,5 °C, hystérésis 0,3 °C, anticipation de +0,5 °C quand la pièce est sous la
+cible, retour à la cible quand elle est au-dessus, coupure si une ouverture de la pièce est ouverte. Rien n'est
+envoyé : aucun ordre ne quitte le plugin.
+
+Réglages par pièce (activation, Confort, Réduit, mini, maxi) et liens : température, état actif, consigne actuelle,
+puissance, énergie. L'ouverture est lue sur les sondes de la pièce.
+
+La brique **Sorties**, prévue à l'origine en 0.2.0, passe en 0.3.0 : l'optimiseur n'en a pas besoin tant qu'il
+observe.
+
 ## 0.1.22 — 2026-11-06
 
 L'onglet **« Simulateur »** devient **« Optimiseur »** et son contenu est vidé : on repart d'une page blanche pour

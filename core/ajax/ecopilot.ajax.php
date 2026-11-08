@@ -6,6 +6,7 @@
  */
 
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
+require_once dirname(__FILE__) . '/../class/ecopilot_opti.class.php';
 
 try {
 	ajax::init();
@@ -305,6 +306,60 @@ try {
 		}
 		ecopilot_sim::push($sim, $key, init('value'));
 		ajax::success();
+	}
+
+	/* ------------------------------------------------------------ optimiseur */
+
+	if ($action == 'setOptiMode') {
+		ecopilot_opti::setMode(init('mode'));
+		ajax::success(array('mode' => ecopilot_opti::mode()));
+	}
+
+	if ($action == 'saveOptiReglage') {
+		$piece = ecopilot_piece::byId(init('piece_id'));
+		if (!is_object($piece)) {
+			throw new Exception(__('Pièce introuvable', __FILE__));
+		}
+		foreach (array('confort' => 'opti_confort', 'reduit' => 'opti_reduit', 'min' => 'opti_min', 'max' => 'opti_max') as $champ => $cle) {
+			if (init($champ) !== '') {
+				$piece->setConfiguration($cle, floatval(init($champ)));
+			}
+		}
+		if (init('enable') !== '') {
+			$piece->setConfiguration('opti_enable', intval(init('enable')));
+		}
+		$piece->save();
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
+	if ($action == 'saveOptiLien') {
+		$piece = ecopilot_piece::byId(init('piece_id'));
+		if (!is_object($piece)) {
+			throw new Exception(__('Pièce introuvable', __FILE__));
+		}
+		$role = init('role');
+		if (!in_array($role, array('temp', 'etat', 'consigne', 'puissance', 'energie'))) {
+			throw new Exception(__('Rôle inconnu', __FILE__));
+		}
+		$cmdId = intval(init('cmd_id'));
+		if ($cmdId > 0) {
+			$cmd = cmd::byId($cmdId);
+			if (!is_object($cmd)) {
+				throw new Exception(__('Commande introuvable', __FILE__));
+			}
+			if ($cmd->getType() != 'info') {
+				throw new Exception(__('Seule une commande d\'information peut être lue', __FILE__));
+			}
+		}
+		$piece->setConfiguration('opti_' . $role, $cmdId);
+		$piece->save();
+		ecopilot_opti::refresh();
+		ajax::success(array('human' => is_object($cmd) ? $cmd->getHumanName() : ''));
+	}
+
+	if ($action == 'refreshOpti') {
+		ajax::success(ecopilot_opti::refresh());
 	}
 
 	throw new Exception(__('Action inconnue', __FILE__) . ' : ' . $action);
