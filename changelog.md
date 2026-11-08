@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.21 — 2026-11-06
+
+L'onglet **« Valeurs calculées »** est retiré : ses sept valeurs de la maison sont désormais en tête de l'onglet
+**Pièces**. Un ancien lien vers `tab=valeurs` retombe sur Pièces au lieu d'afficher une page vide.
+
+L'équipement « Valeurs calculées » et ses commandes restent en place — c'est lui qui porte les valeurs, et tu peux
+toujours les utiliser dans tes scénarios.
+
 ## 0.1.20 — 2026-11-06
 
 L'onglet **Pièces** ouvre désormais sur les valeurs de la maison, avec le calcul rappelé pour chacune : température,

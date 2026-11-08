@@ -16,6 +16,7 @@ include_file('desktop', 'ecopilot', 'css', 'ecopilot');
 include_file('desktop', 'ecopilot', 'js', 'ecopilot');
 $tab = init('tab', 'sondes');
 $vue = init('vue', 'galerie');
+if ($tab == 'valeurs') { $tab = 'pieces'; } /* onglet fusionne dans Pièces (0.1.21) */
 $base = 'index.php?v=d&p=ecopilot&m=ecopilot';
 
 $object = ecopilot::ensureObject();
@@ -94,9 +95,6 @@ function ecopilot_pickIcone($_class, $_value) {
 			</li>
 			<li role="presentation" class="<?php echo ($tab == 'pieces') ? 'active' : ''; ?>">
 				<a href="<?php echo $base; ?>&tab=pieces"><i class="fas fa-home"></i> {{Pièces}} <span class="badge"><?php echo count($pieces); ?></span></a>
-			</li>
-			<li role="presentation" class="<?php echo ($tab == 'valeurs') ? 'active' : ''; ?>">
-				<a href="<?php echo $base; ?>&tab=valeurs"><i class="fas fa-calculator"></i> {{Valeurs calculées}}</a>
 			</li>
 			<li role="presentation" class="<?php echo ($tab == 'simulateur') ? 'active' : ''; ?>">
 				<a href="<?php echo $base; ?>&tab=simulateur"><i class="fas fa-flask"></i> {{Simulateur}}</a>
@@ -552,48 +550,6 @@ function ecopilot_pickIcone($_class, $_value) {
 			</div>
 		</div>
 <?php } ?>
-
-<?php } elseif ($tab == 'valeurs') { ?>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<i class="fas fa-calculator"></i> {{Valeurs calculées}} — <?php echo htmlspecialchars($maison->getName()); ?>
-				<div class="pull-right"><button class="btn btn-sm btn-default bt_refreshAll"><i class="fas fa-sync"></i> {{Recalculer}}</button></div>
-			</div>
-			<table class="table table-condensed table-striped">
-				<thead><tr><th>{{Valeur}}</th><th>{{Résultat}}</th><th>{{Calcul}}</th></tr></thead>
-				<tbody>
-					<?php
-					$explications = array(
-						'temperature' => "{{Moyenne des pièces intérieures qui comptent, à partir de leurs températures de pièce.}}",
-						'hygrometrie' => "{{Moyenne des pièces intérieures qui comptent.}}",
-						'ecart' => "{{Température maison moins température extérieure.}}",
-						'eclairement' => "{{Moyenne des pièces intérieures qui comptent.}}",
-						'temperature_ext' => "{{Moyenne des pièces extérieures.}}",
-						'plus_froide' => "{{Température de la pièce intérieure la plus froide.}}",
-						'plus_froide_piece' => "{{Nom de cette pièce.}}",
-						'plus_chaude' => "{{Température de la pièce intérieure la plus chaude.}}",
-						'plus_chaude_piece' => "{{Nom de cette pièce.}}",
-						'pieces' => "{{Nombre de pièces comptées dans la moyenne de la maison.}}",
-					);
-foreach (array('temperature', 'hygrometrie', 'ecart', 'eclairement', 'temperature_ext', 'plus_froide', 'plus_froide_piece', 'plus_chaude', 'plus_chaude_piece', 'pieces') as $logicalId) {
-	$cmd = ecopilot::cmdOf($maison, $logicalId);
-	if (!is_object($cmd)) {
-		continue;
-	}
-	?>
-					<tr>
-						<td><b><?php echo htmlspecialchars($cmd->getName()); ?></b></td>
-						<td><?php echo ecopilot_aff($cmd->getValue(), 1); ?> <small><?php echo htmlspecialchars($cmd->getUnite()); ?></small></td>
-						<td><small><?php echo $explications[$logicalId]; ?></small></td>
-					</tr>
-					<?php } ?>
-				</tbody>
-			</table>
-			<div class="panel-footer">
-				<small>{{Ces commandes appartiennent à l'équipement}} « <?php echo htmlspecialchars($maison->getName()); ?> »
-				(<?php echo htmlspecialchars($maison->getHumanName()); ?>) : {{tu peux les utiliser dans tes scénarios.}}</small>
-			</div>
-		</div>
 
 <?php } elseif ($tab == 'simulateur') { ?>
 		<div class="panel panel-default">
