@@ -154,9 +154,6 @@ function ecopilot_pickIcone($_class, $_value) {
 					<option value="muette">{{Source muette}}</option>
 				</select>
 			</div>
-			<div class="col-sm-4 text-right">
-				<small class="help-block" style="margin:0;">{{Clique un en-tête de colonne pour trier, du plus petit au plus grand puis l'inverse.}}</small>
-			</div>
 		</div>
 		<div class="table-responsive">
 		<table class="table table-condensed table-striped" id="ep_tableSondes">

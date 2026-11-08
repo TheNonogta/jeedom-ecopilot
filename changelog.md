@@ -1,5 +1,10 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.18 — 2026-11-06
+
+Retrait de la phrase d'aide au-dessus du tableau des sondes (« Clique un en-tête de colonne pour trier ») : la
+fonction se découvre à l'usage, l'en-tête indique déjà le sens du tri.
+
 ## 0.1.17 — 2026-11-06
 
 Correctif de la 0.1.16 : le retrait du panneau de diagnostic avait laissé un fragment de code JavaScript dans le
