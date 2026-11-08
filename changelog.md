@@ -1,5 +1,18 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.7 — 2026-11-06
+
+**Journalisation complète des actions.** Chaque appel AJAX laisse une trace d'entrée (action + paramètres) en
+niveau `debug`, et toute erreur écrit désormais dans le log `ecopilot` : action, type d'exception, message, fichier
+et ligne, paramètres, puis les quatre premières frames de la trace. Les erreurs PHP (`TypeError`, `Error`) sont
+attrapées comme les exceptions — avant, elles produisaient une page blanche sans rien dans le journal.
+
+Côté navigateur, un échec d'action écrit aussi une ligne dans la console (action, statut HTTP, message, début de
+réponse), copiable d'un clic.
+
+Pour lire : **Réglages → Logs → `ecopilot`**. Si les lignes `debug` n'apparaissent pas, c'est le niveau du log
+qui les filtre — les erreurs, elles, passent toujours.
+
 ## 0.2.6 — 2026-11-06
 
 Deux corrections sur la détection automatique.

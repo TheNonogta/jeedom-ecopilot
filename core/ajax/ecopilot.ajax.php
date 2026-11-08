@@ -13,6 +13,9 @@ try {
 
 	$action = init('action');
 
+	/* Trace d'entrée : l'action et ses paramètres, utiles quand une erreur remonte à l'interface. */
+	ecopilot::log('AJAX << ' . $action . ' ' . json_encode($_REQUEST), 'debug');
+
 	/* ------------------------------------------------------------ sondes */
 
 	if ($action == 'createSonde') {
@@ -414,6 +417,23 @@ try {
 	}
 
 	throw new Exception(__('Action inconnue', __FILE__) . ' : ' . $action);
-} catch (Exception $e) {
-	ajax::error(displayException($e), $e->getCode());
+} catch (\Throwable $e) {
+	/* Journal complet : action, paramètres, message, fichier, ligne et début de trace.
+	 * Sans cela, une erreur d'action ne laisse rien dans le log et il faut deviner. */
+	$params = $_REQUEST;
+	unset($params['password'], $params['token'], $params['apikey']);
+	ecopilot::log('AJAX !! ' . (isset($action) ? $action : '?')
+		. ' | ' . get_class($e) . ' : ' . $e->getMessage()
+		. ' | ' . $e->getFile() . ':' . $e->getLine()
+		. ' | params=' . json_encode($params), 'error');
+	foreach (array_slice($e->getTrace(), 0, 4) as $i => $frame) {
+		ecopilot::log('AJAX .. #' . $i . ' ' . (isset($frame['class']) ? $frame['class'] . '::' : '')
+			. (isset($frame['function']) ? $frame['function'] : '?')
+			. ' ' . (isset($frame['file']) ? $frame['file'] : '') . ':' . (isset($frame['line']) ? $frame['line'] : ''), 'error');
+	}
+	if ($e instanceof \Exception) {
+		ajax::error(displayException($e), $e->getCode());
+	} else {
+		ajax::error($e->getMessage(), 0);
+	}
 }

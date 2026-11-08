@@ -24,6 +24,12 @@ function epAjax(_data, _callback) {
 			if (request.responseJSON && request.responseJSON.result) {
 				message = request.responseJSON.result;
 			}
+			/* garde une trace copiable dans la console du navigateur */
+			try {
+				console.error('[Éco Pilot] action=' + (_data && _data.action ? _data.action : '?')
+					+ ' statut=' + status + ' http=' + request.status + ' message=' + message
+					+ ' réponse=' + String(request.responseText || '').slice(0, 500));
+			} catch (e) { }
 			epAlert(message, 'danger');
 		},
 		success: function (result) {
