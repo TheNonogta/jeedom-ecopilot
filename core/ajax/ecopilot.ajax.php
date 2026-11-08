@@ -361,7 +361,8 @@ try {
 				throw new Exception(__('Seule une commande d\'information peut être lue', __FILE__));
 			}
 		}
-		$piece->setConfiguration('opti_' . $role, $cmdId);
+		/* détacher = enregistrer une chaîne vide, jamais 0 : sinon la détection croit le rôle déjà pris */
+		$piece->setConfiguration('opti_' . $role, $cmdId > 0 ? $cmdId : '');
 		$piece->save();
 		ecopilot_opti::refresh();
 		ajax::success(array('human' => is_object($cmd) ? $cmd->getHumanName() : ''));

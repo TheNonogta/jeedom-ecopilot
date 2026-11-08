@@ -1,5 +1,21 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.6 — 2026-11-06
+
+Deux corrections sur la détection automatique.
+
+Le rapport était affiché puis **effacé aussitôt** par le rechargement de la page : le bouton semblait ne rien faire.
+Le rechargement attend maintenant deux secondes et demie, le temps de lire ce qui a été relié.
+
+Un détachement enregistrait `0` au lieu d'une valeur vide, du coup la détection considérait le rôle comme **déjà
+relié** et refusait de le reprendre. Les deux formes sont maintenant traitées comme « pas de lien », et un
+détachement enregistre bien une chaîne vide.
+
+La détection ne regardait que le **nom** des équipements. Elle prend aussi en compte l'**objet Jeedom** de la pièce :
+un équipement « Chauffage » rangé dans l'objet « Bureau » est désormais un candidat pour la pièce Bureau. Et dès
+qu'un équipement ressemble à du chauffage (chauffage, PAC, radiateur, thermostat, clim, poêle), seuls ceux-là sont
+retenus pour l'état actif et la consigne — une prise de la pièce n'a rien à y faire.
+
 ## 0.2.5 — 2026-11-06
 
 Bouton **« reprendre cette consommation »** dans le tableau des réglages : une même mesure alimente souvent

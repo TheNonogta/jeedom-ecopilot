@@ -454,7 +454,7 @@ $(document).on('click', '.bt_optiDetect', function () {
 		for (var role in (rapport.lies || {})) {
 			lies.push(rapport.lies[role]);
 		}
-		var message = lies.length ? ('{{Relié : }}' + lies.join(', ')) : '{{Aucune commande identifiable en plus}}';
+		var message = lies.length ? ('{{Relié : }}' + lies.join(', ')) : '{{Aucune commande identifiable pour cette pièce}}';
 		if (rapport.ambigu) {
 			var amb = [];
 			for (var k in rapport.ambigu) {
@@ -466,7 +466,8 @@ $(document).on('click', '.bt_optiDetect', function () {
 			message += ' — {{aucun équipement ne porte le nom de cette pièce}}';
 		}
 		epAlert(message, lies.length ? 'success' : 'warning');
-		epReload();
+		/* on laisse le temps de lire le rapport : un rechargement immédiat efface le message */
+		setTimeout(epReload, 2500);
 	});
 });
 

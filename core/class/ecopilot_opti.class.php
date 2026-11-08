@@ -473,15 +473,36 @@ class ecopilot_opti {
 			$trouve['temp'] = array('cmd' => $pT->getId(), 'nom' => 'Température de la pièce (moyenne)');
 		}
 
-		/* 2. l'équipement de la pièce : son nom contient celui de la pièce */
+		/* 2. les équipements de la pièce : nom qui contient celui de la pièce, ou équipement
+		 *    rangé dans l'objet Jeedom du même nom (la plupart des installations rangent
+		 *    « Chauffage », « Prise »… dans l'objet de la pièce). */
 		$equipements = array();
+		$objets = array();
+		foreach (jeeObject::all() as $obj) {
+			if (self::norm($obj->getName()) == $nomPiece) {
+				$objets[$obj->getId()] = $obj->getId();
+			}
+		}
 		foreach (eqLogic::all() as $eq) {
 			if (in_array($eq->getEqType_name(), array('ecopilot_piece', 'ecopilot_sonde', 'ecopilot_maison', 'ecopilot_sim'))) {
 				continue;
 			}
-			if (mb_strpos(self::norm($eq->getName()), $nomPiece) !== false) {
+			$parNom = (mb_strpos(self::norm($eq->getName()), $nomPiece) !== false);
+			$parObjet = isset($objets[intval($eq->getObject_id())]);
+			if ($parNom || $parObjet) {
 				$equipements[] = $eq;
 			}
+		}
+		/* s'il existe des équipements qui ressemblent à du chauffage, on ne garde que ceux-là
+		 * pour l'état et la consigne : une prise de la pièce n'a rien à y faire. */
+		$chauffage = array();
+		foreach ($equipements as $eq) {
+			if (preg_match('/chauff|pac|radiateur|thermo|clim|poele/', self::norm($eq->getName()))) {
+				$chauffage[] = $eq;
+			}
+		}
+		if (count($chauffage) > 0) {
+			$equipements = $chauffage;
 		}
 		if (count($equipements) == 0) {
 			return array('trouve' => $trouve, 'ambigu' => $ambigu, 'equipements' => 0);
@@ -542,7 +563,8 @@ class ecopilot_opti {
 		$detection = self::detecter($_piece);
 		$liens = array();
 		foreach ($detection['trouve'] as $role => $info) {
-			if ($_piece->getConfiguration('opti_' . $role, '') !== '') {
+			/* 0 et '' veulent tous deux dire « pas de lien » : un détachement enregistre 0 */
+			if (intval($_piece->getConfiguration('opti_' . $role, 0)) > 0) {
 				continue; /* déjà relié : on ne touche pas */
 			}
 			$_piece->setConfiguration('opti_' . $role, $info['cmd']);
