@@ -334,7 +334,32 @@ class ecopilot_opti {
 		return 'label label-default';
 	}
 
-	/** Énergie consommée depuis minuit, par différence d'index (kWh). */
+	/**
+	 * Unité de l'index d'énergie d'une pièce : celle de la commande si le module la déclare,
+	 * sinon celle saisie sur la sonde de la pièce. Les compteurs sont souvent en Wh.
+	 */
+	public static function uniteEnergie($_piece) {
+		$cmdId = $_piece->getConfiguration('opti_energie', '');
+		if ($cmdId !== '') {
+			$cmd = cmd::byId($cmdId);
+			if (is_object($cmd) && trim($cmd->getUnite()) !== '') {
+				return strtolower(trim($cmd->getUnite()));
+			}
+		}
+		foreach ($_piece->getSondes() as $sondeId => $compte) {
+			$sonde = ecopilot_sonde::byId($sondeId);
+			if (!is_object($sonde)) {
+				continue;
+			}
+			$conf = $sonde->getGrandeur('energie_index');
+			if (is_array($conf) && isset($conf['unit']) && $conf['unit'] !== '') {
+				return strtolower(trim($conf['unit']));
+			}
+		}
+		return '';
+	}
+
+	/** Énergie consommée depuis minuit, ramenée en kWh quel que soit l'index du module (Wh ou kWh). */
 	public static function energieJour($_piece) {
 		$id = $_piece->getConfiguration('opti_energie', '');
 		if ($id === '') {
@@ -360,7 +385,12 @@ class ecopilot_opti {
 		if ($premier === null || $dernier === null || $dernier < $premier) {
 			return null;
 		}
-		return round($dernier - $premier, 2);
+		$delta = $dernier - $premier;
+		$unite = self::uniteEnergie($_piece);
+		if ($unite == 'wh') {
+			$delta = $delta / 1000; /* les compteurs de certains modules sont en Wh */
+		}
+		return round($delta, 2);
 	}
 
 	/* ------------------------------------------------------------------ rafraîchissement */

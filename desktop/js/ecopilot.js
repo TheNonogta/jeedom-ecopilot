@@ -163,6 +163,17 @@ $(document).on('click', '.bt_delSource', function () {
 	});
 });
 
+$(document).on('change', '.ep_unite', function () {
+	epAjax({
+		action: 'saveGrandeurOptions',
+		sonde_id: $(this).data('sonde'),
+		key: $(this).data('key'),
+		unit: $(this).val()
+	}, function () {
+		epReload();
+	});
+});
+
 $(document).on('change', '.ep_fresh', function () {
 	epAjax({
 		action: 'saveGrandeurOptions',

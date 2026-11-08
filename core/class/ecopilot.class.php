@@ -37,7 +37,7 @@ require_once __DIR__ . '/ecopilot_opti.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.2.3';
+	const VERSION = '0.2.4';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -719,10 +719,13 @@ class ecopilot {
 			$order++;
 			$cmds = self::ensureGrandeurCmds($_sonde, $key, '', $order);
 			$read = self::readSources($_sonde, $key, $conf, $def);
-			if ($read['unite'] != '' && $cmds['value']->getUnite() != $read['unite'] && $def['type'] == 'numeric') {
-				$cmds['value']->setUnite($read['unite']);
+			/* Unité : celle saisie sur la grandeur si elle existe (un module peut ne rien déclarer
+			 * et compter en Wh), sinon celle de la commande source. */
+			$uniteVoulue = (isset($conf['unit']) && $conf['unit'] !== '') ? $conf['unit'] : $read['unite'];
+			if ($uniteVoulue != '' && $cmds['value']->getUnite() != $uniteVoulue && $def['type'] == 'numeric') {
+				$cmds['value']->setUnite($uniteVoulue);
 				$cmds['value']->save();
-				$unites[$key] = $read['unite'];
+				$unites[$key] = $uniteVoulue;
 			}
 			$result = self::computeGrandeur($key, $conf, $def, $read);
 			if ($result['value'] !== null) {

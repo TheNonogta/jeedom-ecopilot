@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.4 — 2026-11-06
+
+L'unité d'une grandeur devient **modifiable** sur la fiche de la sonde. Elle était déduite de la commande source,
+or beaucoup de modules de comptage ne déclarent aucune unité et comptent en **Wh** : le plugin affichait alors
+« kWh » sur une valeur mille fois trop grande.
+
+Le champ garde la valeur de la commande comme indication, et la valeur saisie l'emporte. Côté optimiseur, l'unité
+de l'index est lue sur la commande, puis sur la sonde de la pièce, et l'énergie du jour est ramenée en kWh quand
+le compteur est en Wh.
+
 ## 0.2.3 — 2026-11-06
 
 Correctif : le `require_once` de la classe de l'optimiseur avait été inséré **à l'intérieur** du commentaire

@@ -294,7 +294,12 @@ function ecopilot_pickIcone($_class, $_value) {
 										</button>
 									<?php } ?>
 								</td>
-								<td><?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : '—'; ?></td>
+								<td>
+									<input type="text" class="form-control input-sm ep_unite" style="width:70px;" data-sonde="<?php echo $sondeSel->getId(); ?>" data-key="<?php echo $key; ?>"
+										title="{{Unité affichée par le plugin. Par défaut celle de la commande source ; à forcer quand le module n'en déclare pas (compteurs en Wh, par exemple).}}"
+										value="<?php echo htmlspecialchars(isset($conf['unit']) ? $conf['unit'] : ''); ?>"
+										placeholder="<?php echo is_object($cmd) ? htmlspecialchars($cmd->getUnite()) : ''; ?>">
+								</td>
 								<td>
 									<?php $freshDefaut = ecopilot::freshDefault(ecopilot::grandeurDef($sondeSel, $key)); ?>
 									<input type="number" min="0" class="form-control input-sm ep_fresh" style="width:70px;" data-sonde="<?php echo $sondeSel->getId(); ?>" data-key="<?php echo $key; ?>"

@@ -186,6 +186,11 @@ try {
 		if (init('fresh') !== '') {
 			$grandeur['fresh'] = intval(init('fresh'));
 		}
+		if (init('unit') !== '') {
+			$grandeur['unit'] = trim(init('unit'));
+		} else {
+			unset($grandeur['unit']);
+		}
 		$sonde->setGrandeur($key, $grandeur);
 		$sonde->save();
 		ecopilot::refreshSonde($sonde);
