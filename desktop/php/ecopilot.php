@@ -17,6 +17,7 @@ include_file('desktop', 'ecopilot', 'js', 'ecopilot');
 $tab = init('tab', 'sondes');
 $vue = init('vue', 'galerie');
 if ($tab == 'valeurs') { $tab = 'pieces'; } /* onglet fusionne dans Pièces (0.1.21) */
+if ($tab == 'simulateur') { $tab = 'optimiseur'; } /* onglet renommé (0.1.22) */
 $base = 'index.php?v=d&p=ecopilot&m=ecopilot';
 
 $object = ecopilot::ensureObject();
@@ -96,8 +97,8 @@ function ecopilot_pickIcone($_class, $_value) {
 			<li role="presentation" class="<?php echo ($tab == 'pieces') ? 'active' : ''; ?>">
 				<a href="<?php echo $base; ?>&tab=pieces"><i class="fas fa-home"></i> {{Pièces}} <span class="badge"><?php echo count($pieces); ?></span></a>
 			</li>
-			<li role="presentation" class="<?php echo ($tab == 'simulateur') ? 'active' : ''; ?>">
-				<a href="<?php echo $base; ?>&tab=simulateur"><i class="fas fa-flask"></i> {{Simulateur}}</a>
+			<li role="presentation" class="<?php echo ($tab == 'optimiseur') ? 'active' : ''; ?>">
+				<a href="<?php echo $base; ?>&tab=optimiseur"><i class="fas fa-sliders-h"></i> {{Optimiseur}}</a>
 			</li>
 			<li role="presentation" class="<?php echo ($tab == 'aide') ? 'active' : ''; ?>">
 				<a href="<?php echo $base; ?>&tab=aide"><i class="fas fa-question-circle"></i> {{Aide}}</a>
@@ -551,34 +552,9 @@ function ecopilot_pickIcone($_class, $_value) {
 		</div>
 <?php } ?>
 
-<?php } elseif ($tab == 'simulateur') { ?>
+<?php } elseif ($tab == 'optimiseur') { ?>
 		<div class="panel panel-default">
-			<div class="panel-heading">
-				<i class="fas fa-flask"></i> {{Simulateur}}
-				<div class="pull-right"><button class="btn btn-sm btn-default bt_simRandom"><i class="fas fa-random"></i> {{Valeurs aléatoires}}</button></div>
-			</div>
-			<div class="panel-body">
-				<span class="help-block">{{Le simulateur joue le rôle d'un module : il fournit des commandes d'information que tu peux relier à une sonde, et te permet de pousser une valeur à la main pour voir le suivi en direct à l'œuvre.}}</span>
-				<table class="table table-condensed">
-					<thead><tr><th>{{Grandeur}}</th><th>{{Valeur actuelle}}</th><th>{{Pousser une valeur}}</th></tr></thead>
-					<tbody>
-						<?php foreach (ecopilot_sim::$grandeurs as $key => $def) {
-							$cmd = ecopilot::cmdOf($sim, $key);
-							?>
-						<tr>
-							<td><?php echo $def['label']; ?> <small><b><?php echo $cmd->getLogicalId(); ?></b> · <?php echo htmlspecialchars($cmd->getHumanName()); ?></small></td>
-							<td><b><?php echo ecopilot_aff(is_object($cmd) ? $cmd->getValue() : '', 1); ?></b> <small><?php echo $def['unite']; ?></small></td>
-							<td>
-								<div class="input-group input-group-sm" style="max-width:280px;">
-									<input type="number" class="form-control ep_simValue" data-key="<?php echo $key; ?>" value="<?php echo $def['defaut']; ?>" step="0.1">
-									<span class="input-group-btn"><button class="btn btn-default bt_simPush" data-key="<?php echo $key; ?>">{{Pousser}}</button></span>
-								</div>
-							</td>
-						</tr>
-						<?php } ?>
-					</tbody>
-				</table>
-			</div>
+			<div class="panel-heading"><i class="fas fa-sliders-h"></i> {{Optimiseur}}</div>
 		</div>
 
 <?php } else { ?>

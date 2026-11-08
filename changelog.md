@@ -1,5 +1,12 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.22 — 2026-11-06
+
+L'onglet **« Simulateur »** devient **« Optimiseur »** et son contenu est vidé : on repart d'une page blanche pour
+cette brique. Un ancien lien vers `tab=simulateur` retombe sur le nouvel onglet.
+
+L'équipement « Simulateur » et ses commandes restent en place : la recette s'en sert comme source de test.
+
 ## 0.1.21 — 2026-11-06
 
 L'onglet **« Valeurs calculées »** est retiré : ses sept valeurs de la maison sont désormais en tête de l'onglet

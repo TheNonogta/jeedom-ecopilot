@@ -341,24 +341,6 @@ $(document).on('change', '.ep_pieceSondeCompte', function () {
 	});
 });
 
-/* -------------------------------------------------------------- simulateur */
-
-$(document).on('click', '.bt_simPush', function () {
-	var key = $(this).data('key');
-	var value = $('.ep_simValue[data-key="' + key + '"]').val();
-	epAjax({action: 'simPush', key: key, value: value}, function () {
-		epAlert('{{Valeur poussée}}');
-		epReload();
-	});
-});
-
-$(document).on('click', '.bt_simRandom', function () {
-	epAjax({action: 'simPush', key: 'aleatoire'}, function () {
-		epAlert('{{Valeurs aléatoires poussées}}');
-		epReload();
-	});
-});
-
 /* ------------------------------------------------------ tri et filtre du tableau des sondes */
 
 (function () {
