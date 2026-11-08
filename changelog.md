@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.1 — 2026-11-06
+
+Consommation affichée **par équipement**, pas par pièce : une PAC gainable alimente trois zones avec une seule
+mesure de puissance. L'additionner zone par zone aurait annoncé trois fois la consommation réelle.
+
+Le classement garde une ligne par pièce (la déperdition est bien mesurée zone par zone), et un panneau
+« Consommation par équipement » regroupe puissance et énergie du jour par appareil, en listant les pièces qu'il
+alimente. Le sèche-serviette de la salle de bain reste un appareil à part, avec sa propre mesure.
+
 ## 0.2.0 — 2026-11-06
 
 Onglet **Optimiseur** : premier moteur d'optimisation du chauffage, en **observation seule**.

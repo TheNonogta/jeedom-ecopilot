@@ -608,7 +608,13 @@ function ecopilot_pickIcone($_class, $_value) {
 						<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'; ?></td>
 						<td><?php echo $m['deperdition'] === null ? '—' : number_format($m['deperdition'], 3, ',', '') . ' °C/h'; ?></td>
 						<td><?php echo $m['inertie'] === null ? '—' : intval($m['inertie']) . ' min'; ?></td>
-						<td><?php echo isset($d['puissance']) && $d['puissance'] !== null ? number_format($d['puissance'], 0, ',', ' ') . ' W' : '—'; ?></td>
+						<td><?php
+							if (ecopilot_opti::consoPartagee($piece, 'puissance')) {
+								echo '<small>' . htmlspecialchars(ecopilot_opti::equipementConso($piece)) . ' · {{partagée}}</small>';
+							} else {
+								echo isset($d['puissance']) && $d['puissance'] !== null ? number_format($d['puissance'], 0, ',', ' ') . ' W' : '—';
+							}
+						?></td>
 						<td><small><?php echo htmlspecialchars(isset($d['raison']) ? $d['raison'] : '—'); ?></small></td>
 					</tr>
 					<?php } ?>
@@ -640,7 +646,13 @@ function ecopilot_pickIcone($_class, $_value) {
 									<div class="progress" style="margin:0;height:8px;"><div class="progress-bar" style="width:<?php echo $largeur; ?>%"></div></div>
 									<small><?php echo $dep === null ? '{{pas encore assez de mesures}}' : number_format($dep, 3, ',', '') . ' °C/h · ' . intval($d['mesures']['heures']) . ' h mesurées'; ?></small>
 								</td>
-								<td><?php echo isset($d['energie_jour']) && $d['energie_jour'] !== null ? number_format($d['energie_jour'], 2, ',', ' ') . ' kWh' : '—'; ?></td>
+								<td><?php
+									if (ecopilot_opti::consoPartagee($piece, 'energie')) {
+										echo '<small>{{voir par équipement}}</small>';
+									} else {
+										echo isset($d['energie_jour']) && $d['energie_jour'] !== null ? number_format($d['energie_jour'], 2, ',', ' ') . ' kWh' : '—';
+									}
+								?></td>
 							</tr>
 							<?php } ?>
 						</tbody>
@@ -665,6 +677,26 @@ function ecopilot_pickIcone($_class, $_value) {
 					</table>
 				</div>
 			</div>
+		</div>
+		<?php $groupesConso = ecopilot_opti::consoParEquipement(); ?>
+		<div class="panel panel-default">
+			<div class="panel-heading"><i class="fas fa-bolt"></i> {{Consommation par équipement}}</div>
+			<table class="table table-condensed" style="margin:0;">
+				<thead><tr><th>{{Équipement}}</th><th>{{Pièces alimentées}}</th><th>{{Puissance}}</th><th>{{Énergie du jour}}</th></tr></thead>
+				<tbody>
+					<?php if (count($groupesConso) == 0) { ?>
+					<tr><td colspan="4"><small>{{Aucune mesure de consommation reliée pour l'instant.}}</small></td></tr>
+					<?php } foreach ($groupesConso as $g) { ?>
+					<tr>
+						<td><b><?php echo htmlspecialchars($g['nom']); ?></b></td>
+						<td><small><?php echo htmlspecialchars(implode(' · ', $g['pieces'])); ?></small></td>
+						<td><?php echo $g['puissance'] === null ? '—' : number_format($g['puissance'], 0, ',', ' ') . ' W'; ?></td>
+						<td><?php echo $g['energie'] === null ? '—' : number_format($g['energie'], 2, ',', ' ') . ' kWh'; ?></td>
+					</tr>
+					<?php } ?>
+				</tbody>
+			</table>
+			<div class="panel-footer"><small>{{Une PAC gainable alimente plusieurs zones avec une seule mesure : la consommation est affichée par équipement, jamais additionnée par pièce.}}</small></div>
 		</div>
 <?php } ?>
 

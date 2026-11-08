@@ -413,6 +413,73 @@ class ecopilot_opti {
 		config::save('optiJournal', $journal, 'ecopilot');
 	}
 
+	/**
+	 * Consommations regroupées par **équipement** et non par pièce : une PAC gainable
+	 * alimente plusieurs zones avec une seule mesure de puissance. Additionner la même
+	 * commande autant de fois qu'il y a de zones annoncerait un chiffre faux.
+	 *
+	 * Retourne [clé => ['nom' => équipement, 'puissance' => W, 'energie' => kWh, 'pieces' => [noms]]]
+	 */
+	public static function consoParEquipement() {
+		$groupes = array();
+		foreach (self::pieces() as $piece) {
+			foreach (array('puissance' => 'puissance', 'energie' => 'energie') as $role => $champ) {
+				$cmdId = $piece->getConfiguration('opti_' . $role, '');
+				if ($cmdId === '') {
+					continue;
+				}
+				$cmd = cmd::byId($cmdId);
+				if (!is_object($cmd)) {
+					continue;
+				}
+				$eq = $cmd->getEqLogic();
+				$cle = is_object($eq) ? 'eq' . $eq->getId() : 'cmd' . $cmd->getId();
+				$nom = is_object($eq) ? $eq->getName() : $cmd->getName();
+				if (!isset($groupes[$cle])) {
+					$groupes[$cle] = array('nom' => $nom, 'puissance' => null, 'energie' => null, 'pieces' => array());
+				}
+				if (!in_array($piece->getName(), $groupes[$cle]['pieces'])) {
+					$groupes[$cle]['pieces'][] = $piece->getName();
+				}
+				if ($role == 'puissance') {
+					$groupes[$cle]['puissance'] = self::lire($cmdId);
+				} else {
+					$groupes[$cle]['energie'] = self::energieJour($piece);
+				}
+			}
+		}
+		return $groupes;
+	}
+
+	/** Vrai si la commande de puissance/énergie de cette pièce est partagée avec d'autres pièces. */
+	public static function consoPartagee($_piece, $_role) {
+		$cmdId = $_piece->getConfiguration('opti_' . $_role, '');
+		if ($cmdId === '') {
+			return false;
+		}
+		$n = 0;
+		foreach (self::pieces() as $autre) {
+			if ($autre->getConfiguration('opti_' . $_role, '') == $cmdId) {
+				$n++;
+			}
+		}
+		return $n > 1;
+	}
+
+	/** Nom de l'équipement qui porte la mesure de consommation d'une pièce. */
+	public static function equipementConso($_piece) {
+		$cmdId = $_piece->getConfiguration('opti_puissance', '');
+		if ($cmdId === '') {
+			$cmdId = $_piece->getConfiguration('opti_energie', '');
+		}
+		$cmd = ($cmdId === '') ? null : cmd::byId($cmdId);
+		if (!is_object($cmd)) {
+			return '';
+		}
+		$eq = $cmd->getEqLogic();
+		return is_object($eq) ? $eq->getName() : '';
+	}
+
 	public static function journal() {
 		$j = config::byKey('optiJournal', 'ecopilot', array());
 		return is_array($j) ? $j : array();
