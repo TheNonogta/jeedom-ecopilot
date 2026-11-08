@@ -1,5 +1,18 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.2 — 2026-11-06
+
+Détection et reliure **automatiques** des commandes, par pièce. Le moteur cherche l'équipement dont le nom contient
+celui de la pièce, et lui associe ce qu'il reconnaît : état actif (binaire dont le nom commence par actif / état /
+state / marche), consigne (numérique « consigne » ou « setpoint », priorité à celle du chaud), puissance
+(« puissance » / « power » / « watt ») et énergie (« énergie » / « consommation » / « index » / « kWh »).
+
+La température est reliée d'office à la commande de la pièce. Rien n'est jamais écrasé : un lien existant est
+conservé. Et rien n'est deviné quand plusieurs candidates existent — le rôle reste à relier à la main, et le
+rapport le dit.
+
+Un bouton (baguette) relance la détection sur une pièce ; elle s'exécute aussi automatiquement à l'activation.
+
 ## 0.2.1 — 2026-11-06
 
 Consommation affichée **par équipement**, pas par pièce : une PAC gainable alimente trois zones avec une seule
