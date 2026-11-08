@@ -730,6 +730,9 @@ function ecopilot_pickIcone($_class, $_value) {
 						<td>
 							<b><?php echo htmlspecialchars($piece->getName()); ?></b>
 							<button class="btn btn-xs btn-default bt_optiDetect" data-piece="<?php echo $piece->getId(); ?>" title="{{Relier automatiquement ce qui est identifiable}}"><i class="fas fa-magic"></i></button>
+							<?php if ($piece->getConfiguration('opti_puissance', '') !== '' || $piece->getConfiguration('opti_energie', '') !== '') { ?>
+							<button class="btn btn-xs btn-default bt_copierConso" data-piece="<?php echo $piece->getId(); ?>" title="{{Reprendre cette consommation sur d'autres pièces (PAC commune, par exemple)}}"><i class="fas fa-copy"></i></button>
+							<?php } ?>
 						</td>
 						<td><input type="checkbox" class="ep_optiEnable" data-piece="<?php echo $piece->getId(); ?>" <?php echo ($piece->getConfiguration('opti_enable', 0) == 1) ? 'checked' : ''; ?>></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="confort" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_confort', 20)); ?>"></td>
@@ -783,6 +786,38 @@ function ecopilot_pickIcone($_class, $_value) {
 </div>
 
 <!-- modales -->
+<div class="modal fade" id="md_copierConso">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header"><button class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">{{Reprendre cette consommation ailleurs}}</h4></div>
+			<div class="modal-body">
+				<input type="hidden" class="ep_consoSource">
+				<p><small>{{La même mesure de consommation alimente plusieurs pièces : une PAC gainable, un compteur commun. Elle restera affichée une seule fois, mais toutes ces pièces pourront la lire.}}</small></p>
+				<div class="form-group">
+					<label class="control-label">{{Mesures à reprendre}}</label>
+					<div>
+						<label class="checkbox-inline"><input type="checkbox" class="ep_consoRole" value="puissance" checked> {{Puissance}}</label>
+						<label class="checkbox-inline"><input type="checkbox" class="ep_consoRole" value="energie" checked> {{Énergie}}</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">{{Pièces concernées}}</label>
+					<div style="max-height:220px;overflow:auto;">
+						<?php foreach ($pieces as $piece) {
+							if ($piece->getPieceType() != 'interieur') { continue; }
+							?>
+						<label class="checkbox"><input type="checkbox" class="ep_consoCible" value="<?php echo $piece->getId(); ?>"> <?php echo htmlspecialchars($piece->getName()); ?></label>
+						<?php } ?>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal">{{Annuler}}</button>
+				<button class="btn btn-primary bt_doCopierConso">{{Appliquer}}</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade" id="md_newSonde">
 	<div class="modal-dialog">
 		<div class="modal-content">

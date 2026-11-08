@@ -470,6 +470,33 @@ $(document).on('click', '.bt_optiDetect', function () {
 	});
 });
 
+$(document).on('click', '.bt_copierConso', function () {
+	$('#md_copierConso .ep_consoSource').val($(this).data('piece'));
+	$('#md_copierConso .ep_consoCible').prop('checked', false);
+	$('#md_copierConso').modal('show');
+});
+
+$(document).on('click', '.bt_doCopierConso', function () {
+	var roles = [];
+	$('#md_copierConso .ep_consoRole:checked').each(function () { roles.push($(this).val()); });
+	var cibles = [];
+	$('#md_copierConso .ep_consoCible:checked').each(function () { cibles.push($(this).val()); });
+	if (roles.length === 0 || cibles.length === 0) {
+		epAlert('{{Choisis au moins une mesure et une pièce}}', 'warning');
+		return;
+	}
+	epAjax({
+		action: 'copierConso',
+		piece_id: $('#md_copierConso .ep_consoSource').val(),
+		roles: roles.join(','),
+		cibles: cibles.join(',')
+	}, function (r) {
+		$('#md_copierConso').modal('hide');
+		epAlert('{{Consommation reprise sur }}' + ((r && r.result) ? r.result.pieces : '?') + ' {{pièce(s)}}');
+		epReload();
+	});
+});
+
 $(document).on('click', '.bt_optiLien', function () {
 	var pieceId = $(this).data('piece');
 	var role = $(this).data('role');

@@ -377,6 +377,37 @@ try {
 		ajax::success($rapport);
 	}
 
+	if ($action == 'copierConso') {
+		$source = ecopilot_piece::byId(init('piece_id'));
+		if (!is_object($source)) {
+			throw new Exception(__('Pièce source introuvable', __FILE__));
+		}
+		$roles = array();
+		foreach (explode(',', init('roles')) as $r) {
+			if (in_array($r, array('puissance', 'energie')) && $source->getConfiguration('opti_' . $r, '') !== '') {
+				$roles[] = $r;
+			}
+		}
+		if (count($roles) == 0) {
+			throw new Exception(__('Cette pièce n\'a aucune consommation à reprendre', __FILE__));
+		}
+		$cibles = array_filter(array_map('intval', explode(',', init('cibles'))));
+		$n = 0;
+		foreach ($cibles as $id) {
+			$cible = ecopilot_piece::byId($id);
+			if (!is_object($cible) || $cible->getId() == $source->getId()) {
+				continue;
+			}
+			foreach ($roles as $r) {
+				$cible->setConfiguration('opti_' . $r, $source->getConfiguration('opti_' . $r, ''));
+			}
+			$cible->save();
+			$n++;
+		}
+		ecopilot_opti::refresh();
+		ajax::success(array('pieces' => $n));
+	}
+
 	if ($action == 'refreshOpti') {
 		ajax::success(ecopilot_opti::refresh());
 	}

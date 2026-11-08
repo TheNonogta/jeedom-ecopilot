@@ -1,5 +1,12 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.5 — 2026-11-06
+
+Bouton **« reprendre cette consommation »** dans le tableau des réglages : une même mesure alimente souvent
+plusieurs pièces — une PAC gainable, un compteur commun. On la relie une fois, puis on choisit les pièces
+concernées et les mesures à reprendre (puissance, énergie). L'affichage reste regroupé par équipement, et les
+pièces reprennent exactement la même commande : c'est ce qui permet de la compter une seule fois au lieu de trois.
+
 ## 0.2.4 — 2026-11-06
 
 L'unité d'une grandeur devient **modifiable** sur la fiche de la sonde. Elle était déduite de la commande source,
