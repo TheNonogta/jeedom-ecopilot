@@ -413,6 +413,117 @@ class ecopilot_opti {
 		config::save('optiJournal', $journal, 'ecopilot');
 	}
 
+	/* ------------------------------------------------------------------ détection automatique */
+
+	/** Normalise un libellé pour comparer (sans accents ni casse). */
+	private static function norm($_txt) {
+		$txt = str_replace(
+			array('à','â','ä','á','ã','ç','é','è','ê','ë','í','î','ï','ó','ô','ö','õ','ù','û','ü','ñ','°'),
+			array('a','a','a','a','a','c','e','e','e','e','i','i','i','o','o','o','o','u','u','u','n',''),
+			mb_strtolower(trim((string) $_txt))
+		);
+		return $txt;
+	}
+
+	/**
+	 * Cherche, pour une pièce, les commandes qui ressemblent à ce qu'attend chaque rôle.
+	 * On ne retient un rôle que s'il y a **une seule** candidate plausible : mieux vaut
+	 * laisser la main à l'utilisateur que de relier la mauvaise commande en silence.
+	 *
+	 * Retourne [role => ['cmd' => id, 'nom' => nom, 'raison' => ...]] et la liste des ambiguïtés.
+	 */
+	public static function detecter($_piece) {
+		$trouve = array();
+		$ambigu = array();
+		$nomPiece = self::norm($_piece->getName());
+
+		/* 1. la température : la commande de la pièce elle-même, toujours */
+		$pT = ecopilot::cmdOf($_piece, 'p_temperature');
+		if (is_object($pT)) {
+			$trouve['temp'] = array('cmd' => $pT->getId(), 'nom' => 'Température de la pièce (moyenne)');
+		}
+
+		/* 2. l'équipement de la pièce : son nom contient celui de la pièce */
+		$equipements = array();
+		foreach (eqLogic::all() as $eq) {
+			if (in_array($eq->getEqType_name(), array('ecopilot_piece', 'ecopilot_sonde', 'ecopilot_maison', 'ecopilot_sim'))) {
+				continue;
+			}
+			if (mb_strpos(self::norm($eq->getName()), $nomPiece) !== false) {
+				$equipements[] = $eq;
+			}
+		}
+		if (count($equipements) == 0) {
+			return array('trouve' => $trouve, 'ambigu' => $ambigu, 'equipements' => 0);
+		}
+
+		$candidats = array('etat' => array(), 'consigne' => array(), 'puissance' => array(), 'energie' => array());
+		foreach ($equipements as $eq) {
+			foreach ($eq->getCmd('info') as $cmd) {
+				$nom = self::norm($cmd->getName());
+				$num = ($cmd->getSubType() == 'numeric');
+
+				if ($cmd->getSubType() == 'binary' && preg_match('/^(actif|etat|state|marche)/', $nom)) {
+					$candidats['etat'][] = $cmd;
+					continue;
+				}
+				if ($num && preg_match('/consigne|setpoint/', $nom)) {
+					$candidats['consigne'][] = $cmd;
+					continue;
+				}
+				if ($num && preg_match('/puissance|power|watt/', $nom)) {
+					$candidats['puissance'][] = $cmd;
+					continue;
+				}
+				if ($num && preg_match('/energie|consommation|index|kwh/', $nom)) {
+					$candidats['energie'][] = $cmd;
+				}
+			}
+		}
+
+		foreach ($candidats as $role => $liste) {
+			if (count($liste) == 1) {
+				$trouve[$role] = array('cmd' => $liste[0]->getId(), 'nom' => $liste[0]->getName());
+			} elseif (count($liste) > 1) {
+				/* plusieurs consignes : on préfère celle du chaud si elle existe */
+				if ($role == 'consigne') {
+					$chaud = array();
+					foreach ($liste as $c) {
+						if (mb_strpos(self::norm($c->getName()), 'chaud') !== false) {
+							$chaud[] = $c;
+						}
+					}
+					if (count($chaud) == 1) {
+						$trouve[$role] = array('cmd' => $chaud[0]->getId(), 'nom' => $chaud[0]->getName());
+						continue;
+					}
+				}
+				$ambigu[$role] = count($liste);
+			}
+		}
+		return array('trouve' => $trouve, 'ambigu' => $ambigu, 'equipements' => count($equipements));
+	}
+
+	/**
+	 * Relie ce qui a été détecté, sans jamais écraser un lien existant.
+	 * Retourne le rapport de ce qui a été relié et de ce qui reste à faire.
+	 */
+	public static function autoLier($_piece) {
+		$detection = self::detecter($_piece);
+		$liens = array();
+		foreach ($detection['trouve'] as $role => $info) {
+			if ($_piece->getConfiguration('opti_' . $role, '') !== '') {
+				continue; /* déjà relié : on ne touche pas */
+			}
+			$_piece->setConfiguration('opti_' . $role, $info['cmd']);
+			$liens[$role] = $info['nom'];
+		}
+		if (count($liens) > 0) {
+			$_piece->save();
+		}
+		return array('lies' => $liens, 'ambigu' => $detection['ambigu'], 'equipements' => $detection['equipements']);
+	}
+
 	/**
 	 * Consommations regroupées par **équipement** et non par pièce : une PAC gainable
 	 * alimente plusieurs zones avec une seule mesure de puissance. Additionner la même

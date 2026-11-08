@@ -329,6 +329,10 @@ try {
 			$piece->setConfiguration('opti_enable', intval(init('enable')));
 		}
 		$piece->save();
+		if ($piece->getConfiguration('opti_enable', 0) == 1) {
+			/* à l'activation, on relie ce qui est identifiable sans ambiguïté */
+			ecopilot_opti::autoLier($piece);
+		}
 		ecopilot_opti::refresh();
 		ajax::success();
 	}
@@ -356,6 +360,16 @@ try {
 		$piece->save();
 		ecopilot_opti::refresh();
 		ajax::success(array('human' => is_object($cmd) ? $cmd->getHumanName() : ''));
+	}
+
+	if ($action == 'autoLinkOpti') {
+		$piece = ecopilot_piece::byId(init('piece_id'));
+		if (!is_object($piece)) {
+			throw new Exception(__('Pièce introuvable', __FILE__));
+		}
+		$rapport = ecopilot_opti::autoLier($piece);
+		ecopilot_opti::refresh();
+		ajax::success($rapport);
 	}
 
 	if ($action == 'refreshOpti') {

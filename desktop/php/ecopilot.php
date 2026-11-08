@@ -722,7 +722,10 @@ function ecopilot_pickIcone($_class, $_value) {
 						);
 						?>
 					<tr>
-						<td><b><?php echo htmlspecialchars($piece->getName()); ?></b></td>
+						<td>
+							<b><?php echo htmlspecialchars($piece->getName()); ?></b>
+							<button class="btn btn-xs btn-default bt_optiDetect" data-piece="<?php echo $piece->getId(); ?>" title="{{Relier automatiquement ce qui est identifiable}}"><i class="fas fa-magic"></i></button>
+						</td>
 						<td><input type="checkbox" class="ep_optiEnable" data-piece="<?php echo $piece->getId(); ?>" <?php echo ($piece->getConfiguration('opti_enable', 0) == 1) ? 'checked' : ''; ?>></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="confort" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_confort', 20)); ?>"></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="reduit" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_reduit', 17)); ?>"></td>
