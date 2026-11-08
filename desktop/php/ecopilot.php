@@ -108,14 +108,6 @@ function ecopilot_pickIcone($_class, $_value) {
 				<a href="index.php?v=d&p=plugin&id=ecopilot"><i class="fas fa-cogs"></i> {{Configuration}}</a>
 			</li>
 		</ul>
-		<div class="alert alert-info" style="margin-top:15px;">
-			<small>
-				{{Le plugin ne parle à aucun matériel : il lit les commandes de vos équipements existants.}}<br>
-				<?php echo $nbGrandeurs; ?> {{grandeur(s) activée(s)}} ·
-				<span class="<?php echo ($nbARelie > 0) ? 'text-warning' : ''; ?>"><?php echo $nbARelie; ?> {{à relier}}</span> ·
-				<span class="<?php echo ($nbMuettes > 0) ? 'text-warning' : ''; ?>"><?php echo $nbMuettes; ?> {{muette(s)}}</span>
-			</small>
-		</div>
 	</div>
 
 	<div class="col-lg-10 col-md-9 col-sm-8">

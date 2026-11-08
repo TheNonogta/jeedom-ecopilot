@@ -1,5 +1,10 @@
 # Journal des modifications — Éco Pilot
 
+## 0.1.19 — 2026-11-06
+
+Retrait de l'encart bleu de la colonne de gauche (« Le plugin ne parle à aucun matériel… » avec le décompte des
+grandeurs). Le rappel de principe reste dans l'onglet Aide, et les compteurs dans l'en-tête de l'onglet Sondes.
+
 ## 0.1.18 — 2026-11-06
 
 Retrait de la phrase d'aide au-dessus du tableau des sondes (« Clique un en-tête de colonne pour trier ») : la
