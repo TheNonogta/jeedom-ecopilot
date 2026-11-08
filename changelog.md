@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.3 — 2026-11-06
+
+Correctif : le `require_once` de la classe de l'optimiseur avait été inséré **à l'intérieur** du commentaire
+d'en-tête de `ecopilot.class.php`. Il ne s'exécutait donc jamais, et le passage du cron écrivait chaque minute
+« optimiseur : Class "ecopilot_opti" not found ».
+
+Le chargement est désormais fait avec les autres classes du plugin, juste avant la déclaration de la classe
+maîtresse, comme `ecopilot_sonde` et `ecopilot_piece`.
+
 ## 0.2.2 — 2026-11-06
 
 Détection et reliure **automatiques** des commandes, par pièce. Le moteur cherche l'équipement dont le nom contient

@@ -17,9 +17,6 @@
  */
 
 /**
-require_once dirname(__FILE__) . '/ecopilot_opti.class.php';
-
-/**
  * Éco Pilot — classe maîtresse du plugin.
  *
  * Principe : le plugin ne parle à AUCUN matériel. L'utilisateur relie lui-même, pour chaque
@@ -36,10 +33,11 @@ require_once __DIR__ . '/ecopilot_maison.class.php';
 require_once __DIR__ . '/ecopilot_sim.class.php';
 require_once __DIR__ . '/ecopilot_sondeCmd.class.php';
 require_once __DIR__ . '/ecopilot_simCmd.class.php';
+require_once __DIR__ . '/ecopilot_opti.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.2.2';
+	const VERSION = '0.2.3';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
