@@ -1,5 +1,18 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.12 — 2026-11-06
+
+Sur l'équipement de chaque pièce, la commande de **moyenne** existe désormais pour **toutes les grandeurs
+déclarées** par ses sondes — y compris celles qui n'ont pas encore de valeur. Elle affiche alors `—`, au lieu de
+disparaître.
+
+Avant, dès qu'une source se taisait (ou qu'une sonde n'avait pas encore de commande reliée), la commande `p_…`
+correspondante était supprimée : la moyenne s'évaporait de l'équipement, et un scénario qui l'utilisait tombait sur
+une commande inexistante. Elles ne sont plus retirées que si la grandeur n'est plus déclarée du tout.
+
+Les unités suivent : `%` pour l'hygrométrie, `°C` pour la température, `Wh` ou `kWh` selon ce que tu as saisi sur
+la sonde.
+
 ## 0.2.11 — 2026-11-06
 
 Troisième façon de connaître l'état d'un chauffage, pour les zones d'une PAC qui n'exposent ni état actif ni

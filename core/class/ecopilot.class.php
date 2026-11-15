@@ -37,7 +37,7 @@ require_once __DIR__ . '/ecopilot_opti.class.php';
 
 class ecopilot {
 
-	const VERSION = '0.2.11';
+	const VERSION = '0.2.12';
 	const LOG_ID = 'ecopilot';
 
 	/** Types génériques du cœur posés sur nos commandes, quand l'équivalent existe. */
@@ -779,6 +779,7 @@ class ecopilot {
 		$buckets = array();
 		$unites = array();
 		$defs = array();
+		$declarees = array();
 		foreach ($_piece->getSondes() as $sondeId => $compte) {
 			if (!$compte) {
 				continue;
@@ -788,6 +789,12 @@ class ecopilot {
 				continue;
 			}
 			foreach ($sonde->getGrandeurs() as $key => $conf) {
+				/* Une grandeur déclarée doit avoir sa commande de moyenne, même sans valeur :
+				 * sinon la moyenne disparaît de l'équipement dès que la source se tait. */
+				if (!isset($declarees[$key])) {
+					$declarees[$key] = true;
+					$defs[$key] = self::grandeurDef($sonde, $key);
+				}
 				$value = self::cmdOf($sonde, 'g_' . $key);
 				$muette = self::cmdOf($sonde, 'g_' . $key . '_muette');
 				if (!is_object($value) || $value->getValue() === '' || $value->getValue() === null) {
@@ -798,7 +805,6 @@ class ecopilot {
 				}
 				if (!isset($buckets[$key])) {
 					$buckets[$key] = array();
-					$defs[$key] = self::grandeurDef($sonde, $key);
 				}
 				$buckets[$key][] = $value->getValue();
 				if (!isset($unites[$key]) && $value->getUnite() != '') {
@@ -807,13 +813,29 @@ class ecopilot {
 			}
 		}
 		$order = 0;
-		foreach ($buckets as $key => $values) {
+		foreach ($declarees as $key => $ignore) {
 			$def = isset($defs[$key]) ? $defs[$key] : null;
 			if ($def === null) {
 				$def = array('label' => $key, 'type' => 'numeric');
 			}
 			$order++;
 			$subType = in_array($def['type'], array('binary', 'string')) ? $def['type'] : 'numeric';
+			$cmd = self::ensureCmd($_piece, 'p_' . $key, $def['label'], array(
+				'subType' => $subType,
+				'unite' => isset($unites[$key]) ? $unites[$key] : (isset($def['unit']) ? $def['unit'] : ''),
+				'historize' => ($subType == 'numeric' && config::byKey('historize', self::LOG_ID, 1) == 1) ? 1 : 0,
+				'genericType' => self::genericType($key),
+				'order' => $order,
+			));
+			if (!isset($buckets[$key])) {
+				/* aucune valeur exploitable : on vide au lieu de laisser un chiffre périmé */
+				if ($cmd->getValue() !== '' && $cmd->getValue() !== null) {
+					$cmd->setValue('');
+					$cmd->save();
+				}
+				continue;
+			}
+			$values = $buckets[$key];
 			$agg = in_array($key, self::$pieceMax) ? 'max' : ($def['type'] == 'binary' ? 'or' : 'mean');
 			$result = null;
 			if ($def['type'] == 'binary') {
@@ -834,13 +856,6 @@ class ecopilot {
 			if ($result === null) {
 				continue;
 			}
-			$cmd = self::ensureCmd($_piece, 'p_' . $key, $def['label'], array(
-				'subType' => $subType,
-				'unite' => isset($unites[$key]) ? $unites[$key] : (isset($def['unit']) ? $def['unit'] : ''),
-				'historize' => ($subType == 'numeric' && config::byKey('historize', self::LOG_ID, 1) == 1) ? 1 : 0,
-				'genericType' => self::genericType($key),
-				'order' => $order,
-			));
 			self::posCmdValue($cmd, $result);
 		}
 		$nb = 0;
@@ -851,10 +866,10 @@ class ecopilot {
 		}
 		$cmdNb = self::ensureCmd($_piece, 'p_sondes', 'Sondes comptées', array('subType' => 'numeric', 'historize' => 0, 'order' => 900));
 		self::posCmdValue($cmdNb, $nb);
-		// une grandeur qui n'a plus de sonde : on retire sa commande
+		/* on ne retire une commande que si la grandeur n'est plus déclarée du tout */
 		foreach ($_piece->getCmd('info') as $cmd) {
 			$logicalId = $cmd->getLogicalId();
-			if (strpos($logicalId, 'p_') === 0 && $logicalId != 'p_sondes' && !isset($buckets[substr($logicalId, 2)])) {
+			if (strpos($logicalId, 'p_') === 0 && $logicalId != 'p_sondes' && !isset($declarees[substr($logicalId, 2)])) {
 				$cmd->remove();
 			}
 		}
