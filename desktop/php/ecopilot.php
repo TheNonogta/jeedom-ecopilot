@@ -655,7 +655,8 @@ function ecopilot_pickIcone($_class, $_value) {
 										if ($dep === null) {
 											echo '{{en attente de mesures}}';
 										} elseif (empty($d['mesures']['suffisant'])) {
-											echo '{{en cours : }}' . $h . ' h / 6 h';
+											echo '{{en cours : }}' . $h . ' h / 6 h'
+												. (!empty($d['mesures']['derive']) ? ' · {{état déduit de la consommation}}' : '');
 										} else {
 											echo number_format($dep, 3, ',', '') . ' °C/h · ' . $h . ' h mesurées';
 										}
@@ -721,7 +722,7 @@ function ecopilot_pickIcone($_class, $_value) {
 			<table class="table table-condensed">
 				<thead>
 					<tr>
-						<th>{{Pièce}}</th><th>{{Pilotée}}</th><th>{{Confort}}</th><th>{{Réduit}}</th><th>{{Mini}}</th><th>{{Maxi}}</th>
+						<th>{{Pièce}}</th><th>{{Pilotée}}</th><th>{{Confort}}</th><th>{{Réduit}}</th><th>{{Mini}}</th><th>{{Maxi}}</th><th>{{Volume}}</th>
 						<th>{{Température}}</th><th>{{État actif}}</th><th>{{Consigne actuelle}}</th><th>{{Puissance}}</th><th>{{Énergie}}</th>
 					</tr>
 				</thead>
@@ -749,6 +750,7 @@ function ecopilot_pickIcone($_class, $_value) {
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="reduit" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_reduit', 17)); ?>"></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="min" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_min', 8)); ?>"></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="max" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_max', 24)); ?>"></td>
+						<td><input type="number" step="1" style="width:80px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="volume" placeholder="m³" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_volume', '')); ?>"></td>
 						<?php foreach ($roles as $role => $libelle) {
 							$cmdId = $piece->getConfiguration('opti_' . $role, '');
 							$cmd = ($cmdId === '') ? null : cmd::byId($cmdId);

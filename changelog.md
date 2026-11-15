@@ -1,5 +1,18 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.10 — 2026-11-06
+
+Deux ajouts pour rendre le classement exploitable sur une vraie maison.
+
+**Volume de la pièce** (facultatif, en m³) sur la fiche de réglage : quand il est renseigné, la déperdition est
+ramenée à une pièce de référence de 40 m³ avant d'être classée. Sans cela, un grand séjour serait toujours moins
+bien noté qu'une petite salle de bain, à isolation égale.
+
+**État du chauffage déduit de la consommation** : quand aucune commande d'état n'est reliée mais qu'une puissance
+l'est, le plugin considère le chauffage actif au-delà d'un seuil (10 W par défaut, réglable). La déduction n'est
+faite que si la mesure de puissance est **propre à la pièce** : une PAC commune à plusieurs zones ne dit pas quelle
+zone chauffe, et le plugin refuse alors de deviner. L'interface indique « état déduit de la consommation ».
+
 ## 0.2.9 — 2026-11-06
 
 Le classement énergétique restait vide pour trois raisons cumulées, toutes corrigées.

@@ -66,6 +66,18 @@ class ecopilot_opti {
 		}
 	}
 
+	/** Seuil de puissance au-delà duquel on considère le chauffage actif (watts). */
+	public static function seuilEtat($_piece) {
+		$v = $_piece->getConfiguration('opti_seuil', '');
+		return ($v === '') ? 10.0 : floatval($v);
+	}
+
+	/** Volume de la pièce en m³, s'il est renseigné (sert à comparer des pièces de tailles différentes). */
+	public static function volume($_piece) {
+		$v = $_piece->getConfiguration('opti_volume', '');
+		return ($v === '') ? null : floatval($v);
+	}
+
 	public static function borneMin($_piece) {
 		$v = $_piece->getConfiguration('opti_min', '');
 		return ($v === '') ? 8.0 : floatval($v);
@@ -225,9 +237,26 @@ class ecopilot_opti {
 			$etatId = 0; /* lien mort : on repasse en mesure partielle */
 		}
 		$etat = array();
+		$derive = false;
 		if ($etatId > 0) {
 			$etat = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
 				array('id' => intval($etatId), 'd' => $depuis), DB::FETCH_TYPE_ALL);
+		} else {
+			/* Pas d'état relié : on le déduit de la consommation, mais seulement si la mesure
+			 * est propre à cette pièce. Une PAC commune ne dit pas quelle zone chauffe. */
+			$pId = intval($_piece->getConfiguration('opti_puissance', 0));
+			if ($pId > 0 && is_object(cmd::byId($pId)) && !self::consoPartagee($_piece, 'puissance')) {
+				$seuil = self::seuilEtat($_piece);
+				foreach (DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
+					array('id' => $pId, 'd' => $depuis), DB::FETCH_TYPE_ALL) as $ligne) {
+					$w = ecopilot::toNum($ligne['value']);
+					if ($w === null) {
+						continue;
+					}
+					$etat[] = array('datetime' => $ligne['datetime'], 'value' => ($w > $seuil) ? 1 : 0);
+				}
+				$derive = (count($etat) > 0);
+			}
 		}
 		/* état actif connu à un instant donné : dernière valeur avant cet instant */
 		$etatConnu = function ($ts) use ($etat) {
@@ -297,7 +326,8 @@ class ecopilot_opti {
 
 		$etatRelie = intval($_piece->getConfiguration('opti_etat', 0));
 		$retour = array('deperdition' => null, 'inertie' => null, 'heures' => round($perteHeures + $gainHeures, 1),
-			'suffisant' => false, 'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))));
+			'suffisant' => false, 'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))),
+			'derive' => (isset($derive) ? $derive : false));
 
 		if ($perteHeures >= 0.25 && $nEcart > 0) {
 			$pente = $perteDegres / $perteHeures; /* °C par heure */
@@ -426,9 +456,17 @@ class ecopilot_opti {
 			$d = self::decider($piece);
 			$m = self::mesures($piece);
 			$d['mesures'] = $m;
+			/* volume renseigné : on ramène la déperdition à une pièce de référence de 40 m³,
+			 * sinon une grande pièce serait toujours moins bien classée qu'un placard */
+			$ref = $m['deperdition'];
+			$vol = self::volume($piece);
+			if ($ref !== null && $vol !== null && $vol > 0) {
+				$ref = $ref * (40 / $vol);
+			}
+			$d['deperdition_ref'] = $ref;
 			/* une classe n'est publiée qu'avec assez de mesures : une lettre sur vingt minutes
 			 * de refroidissement serait une fausse information */
-			$d['classe'] = $m['suffisant'] ? self::classe($m['deperdition']) : null;
+			$d['classe'] = ($m['suffisant'] && $ref !== null) ? self::classe($ref) : null;
 			$d['energie_jour'] = self::energieJour($piece);
 			$d['puissance'] = self::lire($piece->getConfiguration('opti_puissance', ''));
 			$d['piece_id'] = $piece->getId();

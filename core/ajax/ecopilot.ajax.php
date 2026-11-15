@@ -333,7 +333,8 @@ try {
 		if (!is_object($piece)) {
 			throw new Exception(__('Pièce introuvable', __FILE__));
 		}
-		foreach (array('confort' => 'opti_confort', 'reduit' => 'opti_reduit', 'min' => 'opti_min', 'max' => 'opti_max') as $champ => $cle) {
+		foreach (array('confort' => 'opti_confort', 'reduit' => 'opti_reduit', 'min' => 'opti_min', 'max' => 'opti_max',
+			'volume' => 'opti_volume', 'seuil' => 'opti_seuil') as $champ => $cle) {
 			if (init($champ) !== '') {
 				$piece->setConfiguration($cle, floatval(init($champ)));
 			}
