@@ -387,6 +387,24 @@ try {
 		ajax::success($rapport);
 	}
 
+	if ($action == 'saveOptiMaison') {
+		if (init('surface_maison') !== '') {
+			config::save('optiSurfaceMaison', floatval(init('surface_maison')), 'ecopilot');
+		}
+		if (init('compteur_general') !== '') {
+			$cmdId = intval(init('compteur_general'));
+			if ($cmdId > 0) {
+				$cmd = cmd::byId($cmdId);
+				if (!is_object($cmd) || $cmd->getType() != 'info') {
+					throw new Exception(__('Seule une commande d\'information peut servir de compteur', __FILE__));
+				}
+			}
+			config::save('optiCompteurGeneral', $cmdId, 'ecopilot');
+		}
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
 	if ($action == 'copierConso') {
 		$source = ecopilot_piece::byId(init('piece_id'));
 		if (!is_object($source)) {

@@ -725,10 +725,23 @@ function ecopilot_pickIcone($_class, $_value) {
 			<div class="panel-heading"><i class="fas fa-file-signature"></i> {{Consommation réelle}} <small class="text-muted">({{énergie primaire, seuils DPE}})</small></div>
 			<table class="table table-condensed" style="margin:0;">
 				<tbody>
-					<tr><td style="width:260px;">{{Surface renseignée}}</td>
-						<td><?php echo $dpe['surface'] > 0 ? number_format($dpe['surface'], 1, ',', ' ') . ' m² (' . $dpe['pieces'] . ' {{pièces}})' : '{{à renseigner dans le tableau des réglages}}'; ?></td></tr>
+					<tr><td style="width:260px;">{{Surface de référence}}</td>
+						<td>
+							<input type="number" step="1" style="width:90px;display:inline-block;" class="form-control input-sm ep_optiSurfaceMaison" placeholder="m²" value="<?php echo htmlspecialchars(ecopilot_opti::surfaceMaison() === null ? '' : ecopilot_opti::surfaceMaison()); ?>">
+							<?php if (($dpe['source_surface'] ?? 'pieces') === 'maison') { ?>
+							<span class="label label-success">{{surface habitable de la maison}}</span>
+							<?php } elseif ($dpe['surface'] > 0) { ?>
+							<span class="label label-warning">{{somme des pièces : }} <?php echo number_format($dpe['surface'], 1, ',', ' ') . ' m² (' . $dpe['pieces'] . ' {{pièces}})'; ?></span>
+							<?php } else { ?>
+							<span class="label label-default">{{à renseigner}}</span>
+							<?php } ?>
+						</td></tr>
 					<tr><td>{{Énergie relevée}}</td>
-						<td><?php echo $dpe['kwh'] > 0 ? number_format($dpe['kwh'], 1, ',', ' ') . ' kWh ' . sprintf(__('sur %d jour(s)'), $dpe['jours']) : '—'; ?></td></tr>
+						<td><?php echo $dpe['kwh'] > 0 ? number_format($dpe['kwh'], 1, ',', ' ') . ' kWh ' . sprintf('sur %d jour(s)', $dpe['jours']) : '—'; ?>
+						<?php if (empty($dpe['general'])) { ?>
+						<button class="btn btn-xs btn-default bt_optiCompteurGeneral" title="{{Relier le compteur général de la maison}}"><i class="fas fa-link"></i> {{compteur général}}</button>
+						<span class="label label-warning">{{compteurs des sorties seulement}}</span>
+						<?php } else { ?><span class="label label-success">{{compteur général de la maison}}</span><?php } ?></td></tr>
 					<tr><td>{{Extrapolation annuelle}}</td>
 						<td><?php echo $dpe['kwh_an'] === null ? '—' : number_format($dpe['kwh_an'], 0, ',', ' ') . ' kWh/an'; ?></td></tr>
 					<tr><td>{{Énergie primaire}}</td>

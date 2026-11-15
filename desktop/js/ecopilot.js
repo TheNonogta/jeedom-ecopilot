@@ -477,6 +477,24 @@ $(document).on('click', '.bt_optiDetect', function () {
 	});
 });
 
+$(document).on('change', '.ep_optiSurfaceMaison', function () {
+	epAjax({action: 'saveOptiMaison', surface_maison: $(this).val()}, function () {
+		epReload();
+	});
+});
+
+$(document).on('click', '.bt_optiCompteurGeneral', function () {
+	jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+		if (!result || !result.cmd) {
+			return;
+		}
+		epAjax({action: 'saveOptiMaison', compteur_general: result.cmd.id}, function () {
+			epAlert('{{Compteur général relié}}');
+			epReload();
+		});
+	});
+});
+
 $(document).on('click', '.bt_copierConso', function () {
 	$('#md_copierConso .ep_consoSource').val($(this).data('piece'));
 	$('#md_copierConso .ep_consoCible').prop('checked', false);

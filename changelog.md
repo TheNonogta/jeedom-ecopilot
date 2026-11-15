@@ -1,6 +1,19 @@
 # Journal des modifications — Éco Pilot
 
-## 0.2.15 — 2026-11-06
+## 0.2.17 — 2026-11-06
+
+L'indicateur de consommation suit maintenant la convention du DPE sur deux points.
+
+**La surface** : le DPE rapporte la consommation à la **surface habitable entière** du logement, considérée
+chauffée dans son ensemble — pas à la seule somme des pièces qu'on pilote. Un champ « surface de référence » est
+donc proposé au niveau de la maison ; à défaut, le calcul retombe sur la somme des pièces, avec un avertissement
+visible.
+
+**L'énergie** : un DPE compte toute la consommation du logement. Un bouton permet de relier le **compteur général**
+de la maison ; sans lui, l'indicateur se limite aux compteurs des sorties et le signale (« compteurs des sorties
+seulement »).
+
+## 0.2.16 — 2026-11-06
 
 Nouvel indicateur **« Consommation réelle »**, aligné sur les seuils du DPE (arrêté du 31 mars 2021) : énergie
 relevée sur les compteurs, convertie en énergie primaire (× 2,3 pour l'électricité), rapportée à la surface

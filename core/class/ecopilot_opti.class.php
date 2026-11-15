@@ -894,7 +894,20 @@ class ecopilot_opti {
 	 * énergie primaire (coefficient 2,3 pour l'électricité), rapportés à la surface des pièces
 	 * renseignées, puis extrapolés sur un an.
 	 */
+	public static function surfaceMaison() {
+		$v = config::byKey('optiSurfaceMaison', 'ecopilot', '');
+		return ($v === '') ? null : floatval($v);
+	}
+
+	public static function compteurGeneral() {
+		$id = intval(config::byKey('optiCompteurGeneral', 'ecopilot', 0));
+		return ($id > 0 && is_object(cmd::byId($id))) ? $id : 0;
+	}
+
 	public static function indicateurConsommation() {
+		/* Surface de référence du DPE : la surface habitable **entière**, considérée chauffée
+		 * dans son ensemble. À défaut, on additionne les surfaces des pièces renseignées. */
+		$surfaceMaison = self::surfaceMaison();
 		$surface = 0.0;
 		$piecesAvecSurface = 0;
 		foreach (self::pieces() as $piece) {
@@ -904,9 +917,45 @@ class ecopilot_opti {
 				$piecesAvecSurface++;
 			}
 		}
+		$sourceSurface = 'pieces';
+		if ($surfaceMaison !== null && $surfaceMaison > 0) {
+			$surface = $surfaceMaison;
+			$sourceSurface = 'maison';
+		}
 		$conso = self::consoRelevee();
+		$general = self::compteurGeneral();
+		$partiel = true;
+		if ($general > 0) {
+			/* compteur général : toute la consommation de la maison, comme l'exige un DPE */
+			$rows = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id ORDER BY datetime ASC',
+				array('id' => $general), DB::FETCH_TYPE_ALL);
+			$premier = null;
+			$dernier = null;
+			$depuis = null;
+			foreach ($rows as $ligne) {
+				$v = ecopilot::toNum($ligne['value']);
+				if ($v === null) {
+					continue;
+				}
+				if ($premier === null) {
+					$premier = $v;
+					$depuis = $ligne['datetime'];
+				}
+				$dernier = $v;
+			}
+			if ($premier !== null && $dernier !== null && $dernier >= $premier) {
+				$delta = $dernier - $premier;
+				if (self::unitePourCompteur($general) == 'wh') {
+					$delta = $delta / 1000;
+				}
+				$conso = array('kwh' => round($delta, 2), 'jours' => ($depuis === null ? 0 : max(1, intval(round((time() - strtotime($depuis)) / 86400)))), 'depuis' => $depuis);
+				$partiel = false;
+			}
+		}
 		$retour = array('surface' => round($surface, 1), 'pieces' => $piecesAvecSurface,
+			'source_surface' => $sourceSurface,
 			'kwh' => $conso['kwh'], 'jours' => $conso['jours'], 'depuis' => $conso['depuis'],
+			'general' => ($general > 0), 'partiel' => $partiel,
 			'kwh_an' => null, 'cep' => null, 'classe' => null);
 		if ($surface <= 0 || $conso['kwh'] <= 0 || $conso['jours'] <= 0) {
 			return $retour;
