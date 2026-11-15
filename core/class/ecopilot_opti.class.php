@@ -227,6 +227,39 @@ class ecopilot_opti {
 			return array();
 		}
 		$depuis = date('Y-m-d H:i:s', time() - $_heures * 3600);
+		/* La moyenne de la pièce n'a pas d'historique exploitable (valeur constante, commande
+		 * recréée) : on prend la température d'une sonde de la pièce, qui elle est alimentée. */
+		$compter = function ($id) use ($depuis) {
+			$r = DB::Prepare('SELECT COUNT(*) n FROM history WHERE cmd_id = :id AND datetime >= :d',
+				array('id' => intval($id), 'd' => $depuis), DB::FETCH_TYPE_ROW);
+			return is_array($r) ? intval($r['n']) : 0;
+		};
+		if ($compter($tempId) < 5) {
+			$meilleur = $tempId;
+			$nMeilleur = $compter($tempId);
+			foreach ($_piece->getSondes() as $sondeId => $compte) {
+				$sonde = ecopilot_sonde::byId($sondeId);
+				if (!is_object($sonde)) {
+					continue;
+				}
+				$grandeursSonde = $sonde->getGrandeurs();
+				if (!isset($grandeursSonde['temperature'])) {
+					continue;
+				}
+				$g = ecopilot::cmdOf($sonde, 'g_temperature');
+				if (!is_object($g)) {
+					continue;
+				}
+				$n = $compter($g->getId());
+				if ($n > $nMeilleur) {
+					$nMeilleur = $n;
+					$meilleur = $g->getId();
+				}
+			}
+			if ($meilleur != $tempId && $nMeilleur >= 5) {
+				$tempId = $meilleur;
+			}
+		}
 		$temp = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
 			array('id' => intval($tempId), 'd' => $depuis), DB::FETCH_TYPE_ALL);
 		if (count($temp) < 5) {
@@ -355,7 +388,7 @@ class ecopilot_opti {
 		$etatRelie = intval($_piece->getConfiguration('opti_etat', 0));
 		$retour = array('deperdition' => null, 'inertie' => null, 'heures' => round($perteHeures + $gainHeures, 1),
 			'suffisant' => false, 'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))),
-			'derive' => (isset($derive) ? $derive : false));
+			'derive' => (isset($derive) ? $derive : false), 'echantillons' => count($samples));
 
 		if ($perteHeures >= 0.25 && $nEcart > 0) {
 			$pente = $perteDegres / $perteHeures; /* °C par heure */

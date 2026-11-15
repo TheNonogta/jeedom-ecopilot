@@ -1,5 +1,17 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.13 — 2026-11-06
+
+Le classement dit maintenant **pourquoi** une pièce n'a pas encore de note, au lieu d'un « en attente » générique :
+
+- « aucun historique de température » — la commande n'a jamais rien enregistré ;
+- « aucune baisse de température observée (N relevés) » — la pièce chauffe ou reste stable, il n'y a donc rien à
+  mesurer côté déperdition ;
+- « en cours : X h / 6 h » — le refroidissement est mesuré, il manque de la durée.
+
+Et quand la moyenne de la pièce n'a pas d'historique exploitable, la mesure se rabat sur la commande de température
+d'une de ses sondes, qui elle est alimentée.
+
 ## 0.2.12 — 2026-11-06
 
 Sur l'équipement de chaque pièce, la commande de **moyenne** existe désormais pour **toutes les grandeurs

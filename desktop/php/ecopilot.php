@@ -653,7 +653,12 @@ function ecopilot_pickIcone($_class, $_value) {
 									<small><?php
 										$h = intval($d['mesures']['heures']);
 										if ($dep === null) {
-											echo '{{en attente de mesures}}';
+											if (empty($d['mesures']['echantillons'])) {
+												echo '{{aucun historique de température}}';
+											} else {
+												echo '{{aucune baisse de température observée}} ('
+													. intval($d['mesures']['echantillons']) . ' {{relevés}})';
+											}
 										} elseif (empty($d['mesures']['suffisant'])) {
 											echo '{{en cours : }}' . $h . ' h / 6 h'
 												. (($d['mesures']['derive'] ?? '') === 'conso' ? ' · {{état déduit de la consommation}}' : '')
