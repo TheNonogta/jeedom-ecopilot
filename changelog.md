@@ -1,5 +1,15 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.11 — 2026-11-06
+
+Troisième façon de connaître l'état d'un chauffage, pour les zones d'une PAC qui n'exposent ni état actif ni
+puissance propre : **la zone appelle quand sa consigne dépasse sa température mesurée** (au-delà de 0,2 °C). La
+consigne est lue dans l'historique, la température aussi, et la comparaison se fait à chaque relevé.
+
+L'ordre de déduction est désormais : commande d'état si elle existe, sinon puissance propre à la pièce, sinon
+consigne contre mesure. L'interface indique laquelle a servi (« état déduit de la consommation » ou « de la
+consigne »), et une mesure déduite reste marquée provisoire.
+
 ## 0.2.10 — 2026-11-06
 
 Deux ajouts pour rendre le classement exploitable sur une vraie maison.

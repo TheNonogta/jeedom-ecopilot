@@ -656,7 +656,8 @@ function ecopilot_pickIcone($_class, $_value) {
 											echo '{{en attente de mesures}}';
 										} elseif (empty($d['mesures']['suffisant'])) {
 											echo '{{en cours : }}' . $h . ' h / 6 h'
-												. (!empty($d['mesures']['derive']) ? ' · {{état déduit de la consommation}}' : '');
+												. (($d['mesures']['derive'] ?? '') === 'conso' ? ' · {{état déduit de la consommation}}' : '')
+												. (($d['mesures']['derive'] ?? '') === 'consigne' ? ' · {{état déduit de la consigne}}' : '');
 										} else {
 											echo number_format($dep, 3, ',', '') . ' °C/h · ' . $h . ' h mesurées';
 										}

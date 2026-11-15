@@ -255,7 +255,35 @@ class ecopilot_opti {
 					}
 					$etat[] = array('datetime' => $ligne['datetime'], 'value' => ($w > $seuil) ? 1 : 0);
 				}
-				$derive = (count($etat) > 0);
+				$derive = (count($etat) > 0) ? 'conso' : false;
+			}
+			/* dernier recours, pour une zone dont la puissance est commune (PAC) et qui n'expose
+			 * pas d'état : la zone appelle si sa consigne dépasse sa température mesurée. */
+			if (!$derive) {
+				$cId = intval($_piece->getConfiguration('opti_consigne', 0));
+				if ($cId > 0 && is_object(cmd::byId($cId))) {
+					$hist = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
+						array('id' => $cId, 'd' => $depuis), DB::FETCH_TYPE_ALL);
+					$consigneActuelle = ecopilot::toNum(cmd::byId($cId)->getValue());
+					$i = 0;
+					$n = count($hist);
+					$consigne = $consigneActuelle;
+					foreach (DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
+						array('id' => intval($tempId), 'd' => $depuis), DB::FETCH_TYPE_ALL) as $ligne) {
+						$ts = strtotime($ligne['datetime']);
+						while ($i < $n && strtotime($hist[$i]['datetime']) <= $ts) {
+							$v = ecopilot::toNum($hist[$i]['value']);
+							if ($v !== null) { $consigne = $v; }
+							$i++;
+						}
+						$t = ecopilot::toNum($ligne['value']);
+						if ($t === null || $consigne === null) {
+							continue;
+						}
+						$etat[] = array('datetime' => $ligne['datetime'], 'value' => (($consigne - $t) > 0.2) ? 1 : 0);
+					}
+					$derive = (count($etat) > 0) ? 'consigne' : false;
+				}
 			}
 		}
 		/* état actif connu à un instant donné : dernière valeur avant cet instant */
