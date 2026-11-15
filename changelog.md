@@ -1,5 +1,13 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.18 — 2026-11-06
+
+La surface de référence est désormais la **somme des surfaces de toutes les pièces intérieures**, y compris celles
+qui ne sont pas pilotées par l'optimiseur — c'est ce que demande la convention du DPE, qui considère le logement
+entier comme chauffé. Le champ manuel reste prioritaire s'il est renseigné, pour déclarer une pièce non modélisée.
+
+Les pièces marquées « extérieures » sont exclues du total.
+
 ## 0.2.17 — 2026-11-06
 
 L'indicateur de consommation suit maintenant la convention du DPE sur deux points.

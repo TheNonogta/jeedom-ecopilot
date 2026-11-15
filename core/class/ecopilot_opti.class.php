@@ -908,9 +908,15 @@ class ecopilot_opti {
 		/* Surface de référence du DPE : la surface habitable **entière**, considérée chauffée
 		 * dans son ensemble. À défaut, on additionne les surfaces des pièces renseignées. */
 		$surfaceMaison = self::surfaceMaison();
+		/* Somme des surfaces de **toutes** les pièces intérieures, y compris celles qui ne sont pas
+		 * pilotées : la surface de référence du DPE couvre le logement entier. Le champ manuel, s'il
+		 * est rempli, reste prioritaire (utile pour déclarer une pièce non modélisée). */
 		$surface = 0.0;
 		$piecesAvecSurface = 0;
-		foreach (self::pieces() as $piece) {
+		foreach (ecopilot_piece::all() as $piece) {
+			if ($piece->getPieceType() != 'interieur') {
+				continue;
+			}
 			$s = self::surface($piece);
 			if ($s !== null && $s > 0) {
 				$surface += $s;
