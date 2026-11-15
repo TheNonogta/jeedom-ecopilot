@@ -1,5 +1,18 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.14 — 2026-11-06
+
+La mesure de déperdition est refaite sur des **phases** et non plus sur des micro-variations : on repère les
+périodes où la température descend franchement (au moins 0,3 °C d'amplitude), on en tire une pente, et on garde la
+**médiane** de ces pentes. Une maison stable produit des oscillations de 0,1 °C qui ne veulent rien dire
+thermiquement — elles empêchaient toute mesure et gonflaient le temps nécessaire.
+
+Une classe est désormais publiée dès **2 h** de refroidissement observé, et marquée **provisoire** jusqu'à 6 h.
+
+Correction au passage : le **volume** ne sert plus à corriger la classe. La vitesse de refroidissement en °C/h
+rapporte déjà la perte à l'inertie de la pièce ; multiplier par le volume faussait le résultat et pénalisait les
+petites pièces. Le volume reste enregistré, pour dimensionner plus tard.
+
 ## 0.2.13 — 2026-11-06
 
 Le classement dit maintenant **pourquoi** une pièce n'a pas encore de note, au lieu d'un « en attente » générique :

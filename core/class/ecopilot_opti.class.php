@@ -354,54 +354,96 @@ class ecopilot_opti {
 		$extCmd = is_object($maison) ? ecopilot::cmdOf($maison, 'temperature_ext') : null;
 		$ext = is_object($extCmd) ? ecopilot::toNum($extCmd->getValue()) : null;
 
-		$perteHeures = 0.0;
-		$perteDegres = 0.0;
-		$gainHeures = 0.0;
-		$gainDegres = 0.0;
-		$sommeEcart = 0.0;
-		$nEcart = 0;
-
-		for ($i = 1; $i < count($samples); $i++) {
+		/* On ne compte plus les micro-variations : on repère des **phases** franches de baisse
+		 * (au moins 0,3 °C d'amplitude) et on en tire une pente. Une maison stable produit des
+		 * oscillations de 0,1 °C qui ne veulent rien dire thermiquement. */
+		$segments = array();
+		$n = count($samples);
+		$i = 1;
+		while ($i < $n) {
 			$dt = $samples[$i]['ts'] - $samples[$i - 1]['ts'];
-			if ($dt <= 0 || $dt > 3600) {
-				continue; /* trou dans l'historique : inexploitable */
-			}
 			$dT = $samples[$i]['temp'] - $samples[$i - 1]['temp'];
-			$h = $dt / 3600.0;
-			$actif = $samples[$i]['actif'];
-			/* état inconnu (non relié ou lien mort) : une température qui baisse signale une pièce
-			 * qui se refroidit — la déperdition reste mesurable, mais l'inertie non. */
-			if (($actif === false || $actif === null) && $dT < -0.05) {
-				$perteHeures += $h;
-				$perteDegres += -$dT;
-				if ($ext !== null) {
-					$sommeEcart += max(0.5, $samples[$i]['temp'] - $ext);
-					$nEcart++;
-				}
+			if ($dt <= 0 || $dt > 3600 || abs($dT) < 0.05) {
+				$i++;
+				continue;
 			}
-			if ($actif === true && $dT > 0.05) {
-				$gainHeures += $h;
-				$gainDegres += $dT;
+			$sens = ($dT > 0) ? 1 : -1;
+			$j = $i;
+			$debutTs = $samples[$i - 1]['ts'];
+			$debutVal = $samples[$i - 1]['temp'];
+			$finVal = $samples[$j]['temp'];
+			$finTs = $samples[$j]['ts'];
+			$actif = $samples[$j]['actif'];
+			while ($j + 1 < $n) {
+				$dt2 = $samples[$j + 1]['ts'] - $samples[$j]['ts'];
+				$dT2 = $samples[$j + 1]['temp'] - $samples[$j]['temp'];
+				if ($dt2 <= 0 || $dt2 > 3600) {
+					break;
+				}
+				if ($sens > 0 && $dT2 < -0.05) { break; }
+				if ($sens < 0 && $dT2 > 0.05) { break; }
+				$j++;
+				$finVal = $samples[$j]['temp'];
+				$finTs = $samples[$j]['ts'];
+			}
+			$amplitude = abs($finVal - $debutVal);
+			$heures = ($finTs - $debutTs) / 3600.0;
+			if ($heures > 0 && $amplitude >= 0.3) {
+				$segments[] = array('sens' => $sens, 'amplitude' => $amplitude, 'heures' => $heures,
+					'pente' => $amplitude / $heures, 'temp' => $debutVal, 'actif' => $actif);
+			}
+			$i = $j + 1;
+		}
+
+		$pentesPerte = array();
+		$heuresPerte = 0.0;
+		$pentesGain = array();
+		$heuresGain = 0.0;
+		foreach ($segments as $seg) {
+			if ($seg['sens'] < 0 && $seg['actif'] !== true) {
+				$ecart = ($ext !== null) ? max(0.5, $seg['temp'] - $ext) : null;
+				$pentesPerte[] = ($ecart !== null) ? $seg['pente'] / $ecart : $seg['pente'];
+				$heuresPerte += $seg['heures'];
+			} elseif ($seg['sens'] > 0 && $seg['actif'] === true) {
+				$pentesGain[] = $seg['pente'];
+				$heuresGain += $seg['heures'];
 			}
 		}
+
+		$mediane = function ($valeurs) {
+			if (count($valeurs) == 0) {
+				return null;
+			}
+			sort($valeurs);
+			$milieu = intval(floor(count($valeurs) / 2));
+			return (count($valeurs) % 2) ? $valeurs[$milieu] : ($valeurs[$milieu - 1] + $valeurs[$milieu]) / 2;
+		};
 
 		$etatRelie = intval($_piece->getConfiguration('opti_etat', 0));
-		$retour = array('deperdition' => null, 'inertie' => null, 'heures' => round($perteHeures + $gainHeures, 1),
-			'suffisant' => false, 'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))),
-			'derive' => (isset($derive) ? $derive : false), 'echantillons' => count($samples));
+		$retour = array(
+			'deperdition' => null,
+			'inertie' => null,
+			'heures' => round($heuresPerte + $heuresGain, 1),
+			'heures_perte' => round($heuresPerte, 1),
+			'suffisant' => false,
+			'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))),
+			'derive' => (isset($derive) ? $derive : false),
+			'echantillons' => count($samples),
+			'segments' => count($segments),
+		);
 
-		if ($perteHeures >= 0.25 && $nEcart > 0) {
-			$pente = $perteDegres / $perteHeures; /* °C par heure */
-			$ecartMoyen = $sommeEcart / $nEcart;
-			$retour['deperdition'] = round($pente / max(0.5, $ecartMoyen), 3);
+		$pentePerte = $mediane($pentesPerte);
+		if ($pentePerte !== null && $heuresPerte >= 0.5) {
+			$retour['deperdition'] = round($pentePerte, 3);
 		}
-		if ($gainHeures >= 0.3) {
-			$pente = $gainDegres / $gainHeures; /* °C par heure */
-			if ($pente > 0) {
-				$retour['inertie'] = intval(round(0.5 / $pente * 60));
-			}
+		$penteGain = $mediane($pentesGain);
+		if ($penteGain !== null && $penteGain > 0) {
+			$retour['inertie'] = intval(round(0.5 / $penteGain * 60));
 		}
-		$retour['suffisant'] = ($retour['heures'] >= self::MIN_HEURES_MESURE);
+		/* une classe est publiée dès 2 h de refroidissement observé, mais marquée provisoire
+		 * tant qu'on n'a pas 6 h : en dessous de 2 h, une seule nuit froide ferait tout basculer */
+		$retour['suffisant'] = ($heuresPerte >= 6.0);
+		$retour['publiable'] = ($heuresPerte >= 2.0);
 		return $retour;
 	}
 
@@ -519,15 +561,12 @@ class ecopilot_opti {
 			$d['mesures'] = $m;
 			/* volume renseigné : on ramène la déperdition à une pièce de référence de 40 m³,
 			 * sinon une grande pièce serait toujours moins bien classée qu'un placard */
+			/* Le volume ne sert PAS à corriger la classe : la vitesse de refroidissement en °C/h
+			 * rapporte déjà la perte à l'inertie de la pièce. Le classement se fait donc sur la
+			 * déperdition brute ; le volume reste là pour dimensionner, plus tard. */
 			$ref = $m['deperdition'];
-			$vol = self::volume($piece);
-			if ($ref !== null && $vol !== null && $vol > 0) {
-				$ref = $ref * (40 / $vol);
-			}
 			$d['deperdition_ref'] = $ref;
-			/* une classe n'est publiée qu'avec assez de mesures : une lettre sur vingt minutes
-			 * de refroidissement serait une fausse information */
-			$d['classe'] = ($m['suffisant'] && $ref !== null) ? self::classe($ref) : null;
+			$d['classe'] = (!empty($m['publiable']) && $ref !== null) ? self::classe($ref) : null;
 			$d['energie_jour'] = self::energieJour($piece);
 			$d['puissance'] = self::lire($piece->getConfiguration('opti_puissance', ''));
 			$d['piece_id'] = $piece->getId();
