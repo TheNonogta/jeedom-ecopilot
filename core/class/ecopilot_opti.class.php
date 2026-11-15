@@ -72,6 +72,12 @@ class ecopilot_opti {
 		return ($v === '') ? 10.0 : floatval($v);
 	}
 
+	/** Surface au sol de la pièce en m², si elle est renseignée (sert au calcul kWh/m²/an). */
+	public static function surface($_piece) {
+		$v = $_piece->getConfiguration('opti_surface', '');
+		return ($v === '') ? null : floatval($v);
+	}
+
 	/** Volume de la pièce en m³, s'il est renseigné (sert à comparer des pièces de tailles différentes). */
 	public static function volume($_piece) {
 		$v = $_piece->getConfiguration('opti_volume', '');
@@ -501,6 +507,34 @@ class ecopilot_opti {
 		return '';
 	}
 
+	/**
+	 * Unité d'un compteur d'énergie : celle de la commande si le module la déclare, sinon celle
+	 * saisie sur la sonde qui relie cette commande (les modules de comptage n'en déclarent souvent
+	 * aucune et comptent en Wh).
+	 */
+	public static function unitePourCompteur($_cmdId) {
+		$id = intval($_cmdId);
+		$cmd = cmd::byId($id);
+		if (is_object($cmd) && trim($cmd->getUnite()) !== '') {
+			return strtolower(trim($cmd->getUnite()));
+		}
+		foreach (ecopilot_sonde::all() as $sonde) {
+			$grandeurs = $sonde->getGrandeurs();
+			if (!isset($grandeurs['energie_index'])) {
+				continue;
+			}
+			$conf = $grandeurs['energie_index'];
+			if (!isset($conf['unit']) || trim($conf['unit']) === '') {
+				continue;
+			}
+			$sources = isset($conf['sources']) ? array_map('intval', $conf['sources']) : array();
+			if (in_array($id, $sources, true)) {
+				return strtolower(trim($conf['unit']));
+			}
+		}
+		return '';
+	}
+
 	/** Énergie consommée depuis minuit, ramenée en kWh quel que soit l'index du module (Wh ou kWh). */
 	public static function energieJour($_piece) {
 		$id = $_piece->getConfiguration('opti_energie', '');
@@ -528,7 +562,7 @@ class ecopilot_opti {
 			return null;
 		}
 		$delta = $dernier - $premier;
-		$unite = self::uniteEnergie($_piece);
+		$unite = self::unitePourCompteur($id);
 		if ($unite == 'wh') {
 			$delta = $delta / 1000; /* les compteurs de certains modules sont en Wh */
 		}
@@ -790,6 +824,98 @@ class ecopilot_opti {
 		}
 		$eq = $cmd->getEqLogic();
 		return is_object($eq) ? $eq->getName() : '';
+	}
+
+	/* ------------------------------------------------------------------ consommation réelle (type DPE) */
+
+	/**
+	 * Consommation électrique relevée sur les index, sur toute la profondeur d'historique disponible.
+	 * Les commandes partagées (PAC à plusieurs zones) ne sont comptées qu'une fois.
+	 */
+	public static function consoRelevee() {
+		$vus = array();
+		$kwh = 0.0;
+		$plusAncien = null;
+		foreach (self::pieces() as $piece) {
+			$id = intval($piece->getConfiguration('opti_energie', 0));
+			if ($id <= 0 || isset($vus[$id]) || !is_object(cmd::byId($id))) {
+				continue;
+			}
+			$vus[$id] = true;
+			$rows = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id ORDER BY datetime ASC',
+				array('id' => $id), DB::FETCH_TYPE_ALL);
+			if (count($rows) < 2) {
+				continue;
+			}
+			$premier = null;
+			$dernier = null;
+			foreach ($rows as $ligne) {
+				$v = ecopilot::toNum($ligne['value']);
+				if ($v === null) {
+					continue;
+				}
+				if ($premier === null) {
+					$premier = $v;
+					if ($plusAncien === null || $ligne['datetime'] < $plusAncien) {
+						$plusAncien = $ligne['datetime'];
+					}
+				}
+				$dernier = $v;
+			}
+			if ($premier === null || $dernier === null || $dernier < $premier) {
+				continue;
+			}
+			$delta = $dernier - $premier;
+			/* l'unité peut être déclarée sur la commande, ou saisie sur la sonde d'une des pièces
+			 * qui partagent ce compteur : on prend la première indication disponible */
+			$unite = self::unitePourCompteur($id);
+			if ($unite == 'wh') {
+				$delta = $delta / 1000; /* compteurs en Wh : on ramène en kWh */
+			}
+			$kwh += $delta;
+		}
+		$jours = ($plusAncien === null) ? 0 : max(1, intval(round((time() - strtotime($plusAncien)) / 86400)));
+		return array('kwh' => round($kwh, 2), 'jours' => $jours, 'depuis' => $plusAncien);
+	}
+
+	/** Classe DPE pour une consommation en énergie primaire (kWh/m²/an) — arrêté du 31 mars 2021. */
+	public static function classeDpe($_cep) {
+		$seuils = array('A' => 70, 'B' => 110, 'C' => 180, 'D' => 250, 'E' => 330, 'F' => 420);
+		foreach ($seuils as $classe => $seuil) {
+			if ($_cep <= $seuil) {
+				return $classe;
+			}
+		}
+		return 'G';
+	}
+
+	/**
+	 * Indicateur « consommation réelle », comparable au DPE : kWh électriques relevés, convertis en
+	 * énergie primaire (coefficient 2,3 pour l'électricité), rapportés à la surface des pièces
+	 * renseignées, puis extrapolés sur un an.
+	 */
+	public static function indicateurConsommation() {
+		$surface = 0.0;
+		$piecesAvecSurface = 0;
+		foreach (self::pieces() as $piece) {
+			$s = self::surface($piece);
+			if ($s !== null && $s > 0) {
+				$surface += $s;
+				$piecesAvecSurface++;
+			}
+		}
+		$conso = self::consoRelevee();
+		$retour = array('surface' => round($surface, 1), 'pieces' => $piecesAvecSurface,
+			'kwh' => $conso['kwh'], 'jours' => $conso['jours'], 'depuis' => $conso['depuis'],
+			'kwh_an' => null, 'cep' => null, 'classe' => null);
+		if ($surface <= 0 || $conso['kwh'] <= 0 || $conso['jours'] <= 0) {
+			return $retour;
+		}
+		$kwhAn = $conso['kwh'] * 365 / $conso['jours'];
+		$retour['kwh_an'] = round($kwhAn, 0);
+		$retour['cep'] = round($kwhAn * 2.3 / $surface, 0);
+		$retour['classe'] = self::classeDpe($retour['cep']);
+		return $retour;
 	}
 
 	public static function journal() {

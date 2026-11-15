@@ -1,5 +1,17 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.15 — 2026-11-06
+
+Nouvel indicateur **« Consommation réelle »**, aligné sur les seuils du DPE (arrêté du 31 mars 2021) : énergie
+relevée sur les compteurs, convertie en énergie primaire (× 2,3 pour l'électricité), rapportée à la surface
+renseignée, puis extrapolée sur un an.
+
+- champ **Surface (m²)** ajouté par pièce, à côté du volume ;
+- les compteurs partagés (PAC) ne sont comptés qu'une fois ;
+- l'unité d'un index est lue sur la commande, puis sur la sonde qui la relie — les modules de comptage ne
+  déclarent souvent rien et comptent en Wh, ce qui faussait le total d'un facteur mille ;
+- sous 30 jours de relevés, l'indicateur s'affiche avec la mention « ordre de grandeur, pas une note ».
+
 ## 0.2.14 — 2026-11-06
 
 La mesure de déperdition est refaite sur des **phases** et non plus sur des micro-variations : on repère les

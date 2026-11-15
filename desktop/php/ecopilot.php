@@ -720,6 +720,28 @@ function ecopilot_pickIcone($_class, $_value) {
 			</table>
 			<div class="panel-footer"><small>{{Une PAC gainable alimente plusieurs zones avec une seule mesure : la consommation est affichée par équipement, jamais additionnée par pièce.}}</small></div>
 		</div>
+		<?php $dpe = ecopilot_opti::indicateurConsommation(); ?>
+		<div class="panel panel-default">
+			<div class="panel-heading"><i class="fas fa-file-signature"></i> {{Consommation réelle}} <small class="text-muted">({{énergie primaire, seuils DPE}})</small></div>
+			<table class="table table-condensed" style="margin:0;">
+				<tbody>
+					<tr><td style="width:260px;">{{Surface renseignée}}</td>
+						<td><?php echo $dpe['surface'] > 0 ? number_format($dpe['surface'], 1, ',', ' ') . ' m² (' . $dpe['pieces'] . ' {{pièces}})' : '{{à renseigner dans le tableau des réglages}}'; ?></td></tr>
+					<tr><td>{{Énergie relevée}}</td>
+						<td><?php echo $dpe['kwh'] > 0 ? number_format($dpe['kwh'], 1, ',', ' ') . ' kWh ' . sprintf(__('sur %d jour(s)'), $dpe['jours']) : '—'; ?></td></tr>
+					<tr><td>{{Extrapolation annuelle}}</td>
+						<td><?php echo $dpe['kwh_an'] === null ? '—' : number_format($dpe['kwh_an'], 0, ',', ' ') . ' kWh/an'; ?></td></tr>
+					<tr><td>{{Énergie primaire}}</td>
+						<td><?php echo $dpe['cep'] === null ? '—' : number_format($dpe['cep'], 0, ',', ' ') . ' kWh/m²/an'; ?></td></tr>
+					<tr><td><b>{{Classe}}</b></td>
+						<td><b><?php echo $dpe['classe'] === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($dpe['classe']) . '">' . $dpe['classe'] . '</span>'; ?></b></td></tr>
+				</tbody>
+			</table>
+			<div class="panel-footer"><small>
+				{{Électricité convertie en énergie primaire (× 2,3), seuils de l'arrêté du 31 mars 2021 : A ≤ 70, B ≤ 110, C ≤ 180, D ≤ 250, E ≤ 330, F ≤ 420, G au-delà.}}
+				<?php if ($dpe['kwh_an'] !== null && $dpe['jours'] < 30) { ?><br><b>{{Extrapolation sur moins de 30 jours : ordre de grandeur, pas une note.}}</b><?php } ?>
+			</small></div>
+		</div>
 <?php } ?>
 
 		<div class="panel panel-default">
@@ -728,7 +750,7 @@ function ecopilot_pickIcone($_class, $_value) {
 			<table class="table table-condensed">
 				<thead>
 					<tr>
-						<th>{{Pièce}}</th><th>{{Pilotée}}</th><th>{{Confort}}</th><th>{{Réduit}}</th><th>{{Mini}}</th><th>{{Maxi}}</th><th>{{Volume}}</th>
+						<th>{{Pièce}}</th><th>{{Pilotée}}</th><th>{{Confort}}</th><th>{{Réduit}}</th><th>{{Mini}}</th><th>{{Maxi}}</th><th>{{Volume}}</th><th>{{Surface}}</th>
 						<th>{{Température}}</th><th>{{État actif}}</th><th>{{Consigne actuelle}}</th><th>{{Puissance}}</th><th>{{Énergie}}</th>
 					</tr>
 				</thead>
@@ -757,6 +779,7 @@ function ecopilot_pickIcone($_class, $_value) {
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="min" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_min', 8)); ?>"></td>
 						<td><input type="number" step="0.5" style="width:70px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="max" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_max', 24)); ?>"></td>
 						<td><input type="number" step="1" style="width:80px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="volume" placeholder="m³" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_volume', '')); ?>"></td>
+						<td><input type="number" step="0.5" style="width:80px;" class="form-control input-sm ep_optiReglage" data-piece="<?php echo $piece->getId(); ?>" data-champ="surface" placeholder="m²" value="<?php echo htmlspecialchars($piece->getConfiguration('opti_surface', '')); ?>"></td>
 						<?php foreach ($roles as $role => $libelle) {
 							$cmdId = $piece->getConfiguration('opti_' . $role, '');
 							$cmd = ($cmdId === '') ? null : cmd::byId($cmdId);
