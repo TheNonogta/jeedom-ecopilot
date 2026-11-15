@@ -204,12 +204,14 @@ class ecopilot_opti {
 
 	/** Échantillons fusionnés (température + état actif) sur les N dernières heures. */
 	public static function echantillons($_piece, $_heures = 72) {
-		$tempId = $_piece->getConfiguration('opti_temp', '');
-		if ($tempId === '') {
+		/* la commande mémorisée peut avoir été supprimée et recréée (nouvel id) : on retombe
+		 * sur la température de la pièce, qui existe toujours */
+		$tempId = intval($_piece->getConfiguration('opti_temp', 0));
+		if ($tempId <= 0 || !is_object(cmd::byId($tempId))) {
 			$p = ecopilot::cmdOf($_piece, 'p_temperature');
-			$tempId = is_object($p) ? $p->getId() : '';
+			$tempId = is_object($p) ? $p->getId() : 0;
 		}
-		if ($tempId === '') {
+		if ($tempId <= 0) {
 			return array();
 		}
 		$depuis = date('Y-m-d H:i:s', time() - $_heures * 3600);
@@ -218,9 +220,12 @@ class ecopilot_opti {
 		if (count($temp) < 5) {
 			return array();
 		}
-		$etatId = $_piece->getConfiguration('opti_etat', '');
+		$etatId = intval($_piece->getConfiguration('opti_etat', 0));
+		if ($etatId > 0 && !is_object(cmd::byId($etatId))) {
+			$etatId = 0; /* lien mort : on repasse en mesure partielle */
+		}
 		$etat = array();
-		if ($etatId !== '') {
+		if ($etatId > 0) {
 			$etat = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
 				array('id' => intval($etatId), 'd' => $depuis), DB::FETCH_TYPE_ALL);
 		}
@@ -274,7 +279,9 @@ class ecopilot_opti {
 			$dT = $samples[$i]['temp'] - $samples[$i - 1]['temp'];
 			$h = $dt / 3600.0;
 			$actif = $samples[$i]['actif'];
-			if ($actif === false && $dT < -0.05) {
+			/* état inconnu (non relié ou lien mort) : une température qui baisse signale une pièce
+			 * qui se refroidit — la déperdition reste mesurable, mais l'inertie non. */
+			if (($actif === false || $actif === null) && $dT < -0.05) {
 				$perteHeures += $h;
 				$perteDegres += -$dT;
 				if ($ext !== null) {
@@ -288,9 +295,11 @@ class ecopilot_opti {
 			}
 		}
 
-		$retour = array('deperdition' => null, 'inertie' => null, 'heures' => round($perteHeures + $gainHeures, 1), 'suffisant' => false);
+		$etatRelie = intval($_piece->getConfiguration('opti_etat', 0));
+		$retour = array('deperdition' => null, 'inertie' => null, 'heures' => round($perteHeures + $gainHeures, 1),
+			'suffisant' => false, 'partiel' => ($etatRelie <= 0 || !is_object(cmd::byId($etatRelie))));
 
-		if ($perteHeures >= 0.5 && $nEcart > 0) {
+		if ($perteHeures >= 0.25 && $nEcart > 0) {
 			$pente = $perteDegres / $perteHeures; /* °C par heure */
 			$ecartMoyen = $sommeEcart / $nEcart;
 			$retour['deperdition'] = round($pente / max(0.5, $ecartMoyen), 3);
@@ -417,7 +426,9 @@ class ecopilot_opti {
 			$d = self::decider($piece);
 			$m = self::mesures($piece);
 			$d['mesures'] = $m;
-			$d['classe'] = self::classe($m['deperdition']);
+			/* une classe n'est publiée qu'avec assez de mesures : une lettre sur vingt minutes
+			 * de refroidissement serait une fausse information */
+			$d['classe'] = $m['suffisant'] ? self::classe($m['deperdition']) : null;
 			$d['energie_jour'] = self::energieJour($piece);
 			$d['puissance'] = self::lire($piece->getConfiguration('opti_puissance', ''));
 			$d['piece_id'] = $piece->getId();

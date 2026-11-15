@@ -646,10 +646,20 @@ function ecopilot_pickIcone($_class, $_value) {
 								?>
 							<tr>
 								<td><?php echo htmlspecialchars($piece->getName()); ?></td>
-								<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'; ?></td>
+								<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'
+									. (empty($d['mesures']['suffisant']) ? ' <small>({{provisoire}})</small>' : ''); ?></td>
 								<td>
 									<div class="progress" style="margin:0;height:8px;"><div class="progress-bar" style="width:<?php echo $largeur; ?>%"></div></div>
-									<small><?php echo $dep === null ? '{{pas encore assez de mesures}}' : number_format($dep, 3, ',', '') . ' °C/h · ' . intval($d['mesures']['heures']) . ' h mesurées'; ?></small>
+									<small><?php
+										$h = intval($d['mesures']['heures']);
+										if ($dep === null) {
+											echo '{{en attente de mesures}}';
+										} elseif (empty($d['mesures']['suffisant'])) {
+											echo '{{en cours : }}' . $h . ' h / 6 h';
+										} else {
+											echo number_format($dep, 3, ',', '') . ' °C/h · ' . $h . ' h mesurées';
+										}
+									?></small>
 								</td>
 								<td><?php
 									if (ecopilot_opti::consoPartagee($piece, 'energie')) {

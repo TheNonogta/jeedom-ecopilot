@@ -1,5 +1,19 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.9 — 2026-11-06
+
+Le classement énergétique restait vide pour trois raisons cumulées, toutes corrigées.
+
+La commande de température mémorisée sur la pièce pouvait avoir été **supprimée et recréée** — nouvel identifiant,
+donc plus aucun historique associé. Elle retombe maintenant sur la température de la pièce.
+
+La **déperdition** se mesure désormais aussi quand l'**état actif** n'est pas relié : une température qui baisse
+signale une pièce qui se refroidit. La mesure est alors marquée **partielle** dans l'interface (« provisoire ») —
+l'inertie, elle, exige l'état du chauffage.
+
+Enfin, une classe calculée sur moins de six heures de mesures est affichée avec la mention « provisoire » au lieu de
+passer pour une note définitive.
+
 ## 0.2.8 — 2026-11-06
 
 Ajouter une grandeur à une sonde pouvait échouer sur `Duplicate entry '95-Hygrométrie (humidité relative)'
