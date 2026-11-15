@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.19 — 2026-11-06
+
+Le compteur général peut désormais être une **puissance** (W) et non seulement un index : le plugin intègre la
+puissance dans le temps pour en tirer des kWh. Un sélecteur à côté du lien indique le type du compteur
+(« index kWh/Wh » ou « puissance W à intégrer »).
+
+L'intégration ignore les trous de plus de quinze minutes — au-delà, la valeur serait une invention plutôt qu'une
+mesure. Le résultat est donc une **estimation**, suffisante pour situer une classe, pas pour un bilan comptable.
+
 ## 0.2.18 — 2026-11-06
 
 La surface de référence est désormais la **somme des surfaces de toutes les pièces intérieures**, y compris celles

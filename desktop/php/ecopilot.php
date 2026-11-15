@@ -741,7 +741,13 @@ function ecopilot_pickIcone($_class, $_value) {
 						<?php if (empty($dpe['general'])) { ?>
 						<button class="btn btn-xs btn-default bt_optiCompteurGeneral" title="{{Relier le compteur général de la maison}}"><i class="fas fa-link"></i> {{compteur général}}</button>
 						<span class="label label-warning">{{compteurs des sorties seulement}}</span>
-						<?php } else { ?><span class="label label-success">{{compteur général de la maison}}</span><?php } ?></td></tr>
+						<?php } else { ?>
+						<span class="label label-success">{{compteur général de la maison}}</span>
+						<select class="form-control input-sm ep_optiCompteurType" style="width:auto;display:inline-block;">
+							<option value="index" <?php echo ecopilot_opti::typeCompteurGeneral() == 'index' ? 'selected' : ''; ?>>{{index kWh/Wh}}</option>
+							<option value="puissance" <?php echo ecopilot_opti::typeCompteurGeneral() == 'puissance' ? 'selected' : ''; ?>>{{puissance W à intégrer}}</option>
+						</select>
+						<?php } ?></td></tr>
 					<tr><td>{{Extrapolation annuelle}}</td>
 						<td><?php echo $dpe['kwh_an'] === null ? '—' : number_format($dpe['kwh_an'], 0, ',', ' ') . ' kWh/an'; ?></td></tr>
 					<tr><td>{{Énergie primaire}}</td>

@@ -899,6 +899,41 @@ class ecopilot_opti {
 		return ($v === '') ? null : floatval($v);
 	}
 
+	/** Type du compteur général : 'index' (kWh/Wh) ou 'puissance' (W, à intégrer). */
+	public static function typeCompteurGeneral() {
+		$t = config::byKey('optiCompteurType', 'ecopilot', 'index');
+		return ($t == 'puissance') ? 'puissance' : 'index';
+	}
+
+	/** Énergie obtenue en intégrant une puissance (W) dans le temps : kWh sur la période. */
+	public static function consoParIntegration($_cmdId) {
+		$rows = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id ORDER BY datetime ASC',
+			array('id' => intval($_cmdId)), DB::FETCH_TYPE_ALL);
+		$kwh = 0.0;
+		$precedent = null;
+		$debut = null;
+		foreach ($rows as $ligne) {
+			$w = ecopilot::toNum($ligne['value']);
+			if ($w === null) {
+				continue;
+			}
+			$ts = strtotime($ligne['datetime']);
+			if ($debut === null) {
+				$debut = $ligne['datetime'];
+			}
+			if ($precedent !== null) {
+				$dt = $ts - $precedent['ts'];
+				/* on ignore les trous de plus de 15 min : l'intégration deviendrait une invention */
+				if ($dt > 0 && $dt <= 900) {
+					$kwh += (($precedent['w'] + $w) / 2) * ($dt / 3600.0) / 1000.0;
+				}
+			}
+			$precedent = array('ts' => $ts, 'w' => $w);
+		}
+		$jours = ($debut === null) ? 0 : max(1, intval(round((time() - strtotime($debut)) / 86400)));
+		return array('kwh' => round($kwh, 3), 'jours' => $jours, 'depuis' => $debut);
+	}
+
 	public static function compteurGeneral() {
 		$id = intval(config::byKey('optiCompteurGeneral', 'ecopilot', 0));
 		return ($id > 0 && is_object(cmd::byId($id))) ? $id : 0;
@@ -931,7 +966,11 @@ class ecopilot_opti {
 		$conso = self::consoRelevee();
 		$general = self::compteurGeneral();
 		$partiel = true;
-		if ($general > 0) {
+		if ($general > 0 && self::typeCompteurGeneral() == 'puissance') {
+			/* compteur en watts : on intègre la puissance pour obtenir des kWh */
+			$conso = self::consoParIntegration($general);
+			$partiel = false;
+		} elseif ($general > 0) {
 			/* compteur général : toute la consommation de la maison, comme l'exige un DPE */
 			$rows = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id ORDER BY datetime ASC',
 				array('id' => $general), DB::FETCH_TYPE_ALL);

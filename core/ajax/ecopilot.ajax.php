@@ -391,6 +391,9 @@ try {
 		if (init('surface_maison') !== '') {
 			config::save('optiSurfaceMaison', floatval(init('surface_maison')), 'ecopilot');
 		}
+		if (init('compteur_type') !== '') {
+			config::save('optiCompteurType', (init('compteur_type') == 'puissance') ? 'puissance' : 'index', 'ecopilot');
+		}
 		if (init('compteur_general') !== '') {
 			$cmdId = intval(init('compteur_general'));
 			if ($cmdId > 0) {

@@ -495,6 +495,12 @@ $(document).on('click', '.bt_optiCompteurGeneral', function () {
 	});
 });
 
+$(document).on('change', '.ep_optiCompteurType', function () {
+	epAjax({action: 'saveOptiMaison', compteur_type: $(this).val()}, function () {
+		epReload();
+	});
+});
+
 $(document).on('click', '.bt_copierConso', function () {
 	$('#md_copierConso .ep_consoSource').val($(this).data('piece'));
 	$('#md_copierConso .ep_consoCible').prop('checked', false);
