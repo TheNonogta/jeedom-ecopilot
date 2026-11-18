@@ -634,7 +634,19 @@ function ecopilot_pickIcone($_class, $_value) {
 		<div class="row">
 			<div class="col-md-7">
 				<div class="panel panel-default">
-					<div class="panel-heading"><i class="fas fa-chart-bar"></i> {{Classement énergétique}}</div>
+					<div class="panel-heading">
+						<i class="fas fa-chart-bar"></i> {{Classement énergétique}}
+						<?php $fen = ecopilot_opti::fenetre(); ?>
+						<span class="pull-right">
+							<small>{{fenêtre}}</small>
+							<select class="form-control input-sm ep_optiFenetre" style="width:auto;display:inline-block;">
+								<option value="72" <?php echo $fen == 72 ? 'selected' : ''; ?>>3 {{jours}}</option>
+								<option value="168" <?php echo $fen == 168 ? 'selected' : ''; ?>>7 {{jours}}</option>
+								<option value="336" <?php echo $fen == 336 ? 'selected' : ''; ?>>14 {{jours}}</option>
+								<option value="720" <?php echo $fen == 720 ? 'selected' : ''; ?>>30 {{jours}}</option>
+							</select>
+						</span>
+					</div>
 					<table class="table table-condensed" style="margin:0;">
 						<thead><tr><th>{{Pièce}}</th><th>{{Classe}}</th><th style="width:40%">{{Déperdition}}</th><th>{{Énergie du jour}}</th></tr></thead>
 						<tbody>

@@ -73,6 +73,12 @@ class ecopilot_opti {
 	}
 
 	/** Surface au sol de la pièce en m², si elle est renseignée (sert au calcul kWh/m²/an). */
+	/** Fenêtre d'analyse des mesures, en heures (défaut 7 jours). */
+	public static function fenetre() {
+		$v = intval(config::byKey('optiFenetre', 'ecopilot', 168));
+		return ($v >= 24 && $v <= 720) ? $v : 168;
+	}
+
 	public static function surface($_piece) {
 		$v = $_piece->getConfiguration('opti_surface', '');
 		return ($v === '') ? null : floatval($v);
@@ -355,7 +361,7 @@ class ecopilot_opti {
 	 * - inertie     : minutes pour gagner 0,5 °C quand le chauffage est actif.
 	 */
 	public static function mesures($_piece) {
-		$samples = self::echantillons($_piece);
+		$samples = self::echantillons($_piece, self::fenetre());
 		$maison = ecopilot_maison::ensure();
 		$extCmd = is_object($maison) ? ecopilot::cmdOf($maison, 'temperature_ext') : null;
 		$ext = is_object($extCmd) ? ecopilot::toNum($extCmd->getValue()) : null;

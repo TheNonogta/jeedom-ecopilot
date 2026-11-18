@@ -1,5 +1,17 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.21 — 2026-11-06
+
+Deux façons d'avoir plus d'historique, et donc des classes plus fiables.
+
+**La fenêtre d'analyse est réglable** : 3, 7, 14 ou 30 jours, 7 par défaut, dans l'en-tête du classement. Les
+mesures de déperdition étaient calculées sur 72 h ; sur une maison bien isolée, cela ne suffisait pas à trouver
+assez de phases de refroidissement.
+
+**La conservation de l'historique est portée à un an** pour les commandes du plugin : la purge du cœur les
+supprimait au bout de quelques jours, ce qui effaçait les mesures. Chaque commande historisée du plugin reçoit
+`historyPurge = -365 days`.
+
 ## 0.2.20 — 2026-11-06
 
 La classe énergétique ne s'efface plus d'un jour à l'autre. Elle exige toujours 2 h de refroidissement observé

@@ -495,6 +495,12 @@ $(document).on('click', '.bt_optiCompteurGeneral', function () {
 	});
 });
 
+$(document).on('change', '.ep_optiFenetre', function () {
+	epAjax({action: 'saveOptiFenetre', fenetre: $(this).val()}, function () {
+		epReload();
+	});
+});
+
 $(document).on('change', '.ep_optiCompteurType', function () {
 	epAjax({action: 'saveOptiMaison', compteur_type: $(this).val()}, function () {
 		epReload();

@@ -387,6 +387,16 @@ try {
 		ajax::success($rapport);
 	}
 
+	if ($action == 'saveOptiFenetre') {
+		$heures = intval(init('fenetre'));
+		if ($heures < 24 || $heures > 720) {
+			throw new Exception(__('Fenêtre hors limites (24 à 720 heures)', __FILE__));
+		}
+		config::save('optiFenetre', $heures, 'ecopilot');
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
 	if ($action == 'saveOptiMaison') {
 		if (init('surface_maison') !== '') {
 			config::save('optiSurfaceMaison', floatval(init('surface_maison')), 'ecopilot');
