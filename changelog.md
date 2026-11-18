@@ -1,5 +1,11 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.20 — 2026-11-06
+
+La classe énergétique ne s'efface plus d'un jour à l'autre. Elle exige toujours 2 h de refroidissement observé
+pour être calculée, mais une classe obtenue la veille est **conservée pendant 48 h** et affichée avec sa date
+(« mesure du 17/11 03:12 ») au lieu de disparaître parce que la pièce n'a pas assez refroidi aujourd'hui.
+
 ## 0.2.19 — 2026-11-06
 
 Le compteur général peut désormais être une **puissance** (W) et non seulement un index : le plugin intègre la

@@ -600,7 +600,26 @@ class ecopilot_opti {
 			 * déperdition brute ; le volume reste là pour dimensionner, plus tard. */
 			$ref = $m['deperdition'];
 			$d['deperdition_ref'] = $ref;
-			$d['classe'] = (!empty($m['publiable']) && $ref !== null) ? self::classe($ref) : null;
+			$d['classe'] = null;
+			$d['classe_at'] = null;
+			$d['classe_ancienne'] = false;
+			if (!empty($m['publiable']) && $ref !== null) {
+				$d['classe'] = self::classe($ref);
+				$d['classe_at'] = date('Y-m-d H:i:s');
+			} else {
+				/* Une classe calculée hier ne doit pas s'effacer parce qu'aujourd'hui la pièce n'a pas
+				 * assez refroidi : on conserve la dernière valeur, en la datant, pendant 48 h. */
+				$memoire = $piece->getConfiguration('opti_classe', array());
+				if (is_array($memoire) && isset($memoire['classe']) && isset($memoire['at'])
+					&& (time() - strtotime($memoire['at'])) < 48 * 3600) {
+					$d['classe'] = $memoire['classe'];
+					$d['classe_at'] = $memoire['at'];
+					$d['classe_ancienne'] = true;
+				}
+			}
+			if ($d['classe'] !== null) {
+				$piece->setConfiguration('opti_classe', array('classe' => $d['classe'], 'at' => $d['classe_at']));
+			}
 			$d['energie_jour'] = self::energieJour($piece);
 			$d['puissance'] = self::lire($piece->getConfiguration('opti_puissance', ''));
 			$d['piece_id'] = $piece->getId();

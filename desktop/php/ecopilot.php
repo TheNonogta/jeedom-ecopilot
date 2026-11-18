@@ -647,7 +647,8 @@ function ecopilot_pickIcone($_class, $_value) {
 							<tr>
 								<td><?php echo htmlspecialchars($piece->getName()); ?></td>
 								<td><?php echo $classe === null ? '—' : '<span class="' . ecopilot_opti::classeLabel($classe) . '">' . $classe . '</span>'
-									. (empty($d['mesures']['suffisant']) ? ' <small>({{provisoire}})</small>' : ''); ?></td>
+									. (!empty($d['classe_ancienne']) ? ' <small>({{mesure du }} ' . date('d/m H:i', strtotime($d['classe_at'])) . ')</small>'
+										: (empty($d['mesures']['suffisant']) ? ' <small>({{provisoire}})</small>' : '')); ?></td>
 								<td>
 									<div class="progress" style="margin:0;height:8px;"><div class="progress-bar" style="width:<?php echo $largeur; ?>%"></div></div>
 									<small><?php
