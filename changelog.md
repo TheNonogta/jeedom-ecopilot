@@ -8,9 +8,9 @@ Deux façons d'avoir plus d'historique, et donc des classes plus fiables.
 mesures de déperdition étaient calculées sur 72 h ; sur une maison bien isolée, cela ne suffisait pas à trouver
 assez de phases de refroidissement.
 
-**La conservation de l'historique est portée à un an** pour les commandes du plugin : la purge du cœur les
+**La conservation de l'historique est portée à trois mois** pour les commandes du plugin : la purge du cœur les
 supprimait au bout de quelques jours, ce qui effaçait les mesures. Chaque commande historisée du plugin reçoit
-`historyPurge = -365 days`.
+`historyPurge = -3 months`.
 
 ## 0.2.20 — 2026-11-06
 
