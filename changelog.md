@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.23 — 2026-11-06
+
+Un compteur général ne représente pas toujours la maison : annexe, borne de recharge, atelier… le plugin accepte
+désormais de **retirer des circuits** du total. Un bouton à côté du compteur général permet de désigner les
+commandes à soustraire (une puissance ou un index), et l'interface liste les circuits retirés.
+
+La soustraction se fait avec la même méthode que le général : intégration de puissance ou différence d'index, sur
+la même période. Le résultat ne peut pas descendre sous zéro.
+
 ## 0.2.22 — 2026-11-06
 
 **Relevés manuels du compteur** dans le panneau Consommation réelle : une date et une valeur en kWh, et le plugin

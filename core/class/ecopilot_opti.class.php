@@ -1017,6 +1017,102 @@ class ecopilot_opti {
 		return array('kwh' => round($kwh, 2), 'jours' => $jours, 'depuis' => $premier['date']);
 	}
 
+	/**
+	 * Énergie d'une commande sur une période donnée, dans le même mode que le compteur général
+	 * (intégration si le général est en watts, différence d'index sinon). Sert aux exclusions.
+	 */
+	public static function energieSurPeriode($_cmdId, $_depuis) {
+		$id = intval($_cmdId);
+		if ($id <= 0 || !is_object(cmd::byId($id))) {
+			return null;
+		}
+		$debut = ($_depuis === null) ? '1970-01-01 00:00:00' : $_depuis;
+		$rows = DB::Prepare('SELECT datetime, value FROM history WHERE cmd_id = :id AND datetime >= :d ORDER BY datetime ASC',
+			array('id' => $id, 'd' => $debut), DB::FETCH_TYPE_ALL);
+		if (count($rows) < 2) {
+			return null;
+		}
+		if (self::typeCompteurGeneral() == 'puissance') {
+			$kwh = 0.0;
+			$precedent = null;
+			foreach ($rows as $ligne) {
+				$w = ecopilot::toNum($ligne['value']);
+				if ($w === null) {
+					continue;
+				}
+				$ts = strtotime($ligne['datetime']);
+				if ($precedent !== null) {
+					$dt = $ts - $precedent['ts'];
+					if ($dt > 0 && $dt <= 900) {
+						$kwh += (($precedent['w'] + $w) / 2) * ($dt / 3600.0) / 1000.0;
+					}
+				}
+				$precedent = array('ts' => $ts, 'w' => $w);
+			}
+			return $kwh;
+		}
+		$premier = null;
+		$dernier = null;
+		foreach ($rows as $ligne) {
+			$v = ecopilot::toNum($ligne['value']);
+			if ($v === null) {
+				continue;
+			}
+			if ($premier === null) {
+				$premier = $v;
+			}
+			$dernier = $v;
+		}
+		if ($premier === null || $dernier === null || $dernier < $premier) {
+			return null;
+		}
+		$delta = $dernier - $premier;
+		if (self::unitePourCompteur($id) == 'wh') {
+			$delta = $delta / 1000;
+		}
+		return $delta;
+	}
+
+	/** Compteurs à retirer du compteur général (annexe, borne de recharge…). */
+	public static function exclusions() {
+		$liste = config::byKey('optiExclusions', 'ecopilot', array());
+		if (!is_array($liste)) {
+			return array();
+		}
+		$propres = array();
+		foreach ($liste as $id) {
+			if (intval($id) > 0 && is_object(cmd::byId(intval($id)))) {
+				$propres[] = intval($id);
+			}
+		}
+		return $propres;
+	}
+
+	public static function ajouterExclusion($_cmdId) {
+		$id = intval($_cmdId);
+		if ($id <= 0 || !is_object(cmd::byId($id))) {
+			throw new Exception(__('Commande introuvable', __FILE__));
+		}
+		$liste = self::exclusions();
+		if (!in_array($id, $liste)) {
+			$liste[] = $id;
+			config::save('optiExclusions', $liste, 'ecopilot');
+		}
+		return $liste;
+	}
+
+	public static function retirerExclusion($_cmdId) {
+		$id = intval($_cmdId);
+		$liste = array();
+		foreach (self::exclusions() as $autre) {
+			if ($autre != $id) {
+				$liste[] = $autre;
+			}
+		}
+		config::save('optiExclusions', $liste, 'ecopilot');
+		return $liste;
+	}
+
 	public static function compteurGeneral() {
 		$id = intval(config::byKey('optiCompteurGeneral', 'ecopilot', 0));
 		return ($id > 0 && is_object(cmd::byId($id))) ? $id : 0;
@@ -1083,7 +1179,17 @@ class ecopilot_opti {
 				if (self::unitePourCompteur($general) == 'wh') {
 					$delta = $delta / 1000;
 				}
-				$conso = array('kwh' => round($delta, 2), 'jours' => ($depuis === null ? 0 : max(1, intval(round((time() - strtotime($depuis)) / 86400)))), 'depuis' => $depuis);
+				$joursConso = ($depuis === null ? 0 : max(1, intval(round((time() - strtotime($depuis)) / 86400))));
+				/* on retire les circuits exclus de la maison (annexe, borne de recharge) */
+				$retires = 0;
+				foreach (self::exclusions() as $exclu) {
+					$sous = self::energieSurPeriode($exclu, $depuis);
+					if ($sous !== null) {
+						$retires += $sous;
+					}
+				}
+				$delta = max(0, $delta - $retires);
+				$conso = array('kwh' => round($delta, 2), 'jours' => $joursConso, 'depuis' => $depuis);
 				$partiel = false;
 			}
 		}

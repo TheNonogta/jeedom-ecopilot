@@ -387,6 +387,18 @@ try {
 		ajax::success($rapport);
 	}
 
+	if ($action == 'addOptiExclusion') {
+		ecopilot_opti::ajouterExclusion(init('cmd_id'));
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
+	if ($action == 'delOptiExclusion') {
+		ecopilot_opti::retirerExclusion(init('cmd_id'));
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
 	if ($action == 'saveOptiReleve') {
 		ecopilot_opti::ajouterReleve(init('date'), init('kwh'));
 		ecopilot_opti::refresh();

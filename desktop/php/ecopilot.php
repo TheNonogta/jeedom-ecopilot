@@ -762,7 +762,20 @@ function ecopilot_pickIcone($_class, $_value) {
 								<input type="number" step="0.1" class="form-control input-sm ep_releveKwh" style="width:120px;display:inline-block;" placeholder="kWh">
 								<button class="btn btn-sm btn-default bt_addReleve"><i class="fas fa-plus"></i> {{relevé du compteur}}</button>
 								<button class="btn btn-xs btn-default bt_optiCompteurGeneral" title="{{Relier une commande de compteur}}"><i class="fas fa-link"></i></button>
+								<button class="btn btn-xs btn-default bt_optiExclusion" title="{{Retirer un circuit du compteur général (annexe, borne de recharge…)}}"><i class="fas fa-minus-circle"></i></button>
 							</div>
+							<?php $exclusions = ecopilot_opti::exclusions(); if (count($exclusions) > 0) { ?>
+							<div style="margin-top:6px;"><small>{{circuits retirés du général :}}
+								<?php foreach ($exclusions as $exclu) {
+									$c = cmd::byId($exclu);
+									if (!is_object($c)) { continue; }
+									$eq = $c->getEqLogic();
+									?>
+								<span class="label label-default"><?php echo htmlspecialchars((is_object($eq) ? $eq->getName() . ' · ' : '') . $c->getName()); ?></span>
+								<button class="btn btn-xs btn-link bt_delExclusion" data-cmd="<?php echo $exclu; ?>">&times;</button>
+								<?php } ?>
+							</small></div>
+							<?php } ?>
 							<?php $releves = ecopilot_opti::releves(); if (count($releves) > 0) { ?>
 							<div style="margin-top:6px;"><small>
 								{{relevés :}}

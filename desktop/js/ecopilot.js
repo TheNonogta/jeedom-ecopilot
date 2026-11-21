@@ -495,6 +495,24 @@ $(document).on('click', '.bt_optiCompteurGeneral', function () {
 	});
 });
 
+$(document).on('click', '.bt_optiExclusion', function () {
+	jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
+		if (!result || !result.cmd) {
+			return;
+		}
+		epAjax({action: 'addOptiExclusion', cmd_id: result.cmd.id}, function () {
+			epAlert('{{Circuit retiré du compteur général}}');
+			epReload();
+		});
+	});
+});
+
+$(document).on('click', '.bt_delExclusion', function () {
+	epAjax({action: 'delOptiExclusion', cmd_id: $(this).data('cmd')}, function () {
+		epReload();
+	});
+});
+
 $(document).on('click', '.bt_addReleve', function () {
 	var date = $(this).siblings('.ep_releveDate').val();
 	var kwh = $(this).siblings('.ep_releveKwh').val();
