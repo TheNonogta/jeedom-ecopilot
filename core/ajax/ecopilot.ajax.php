@@ -387,6 +387,18 @@ try {
 		ajax::success($rapport);
 	}
 
+	if ($action == 'saveOptiReleve') {
+		ecopilot_opti::ajouterReleve(init('date'), init('kwh'));
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
+	if ($action == 'supprimerOptiReleve') {
+		ecopilot_opti::supprimerReleve(init('date'));
+		ecopilot_opti::refresh();
+		ajax::success();
+	}
+
 	if ($action == 'saveOptiFenetre') {
 		$heures = intval(init('fenetre'));
 		if ($heures < 24 || $heures > 720) {

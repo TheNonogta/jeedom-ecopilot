@@ -750,17 +750,30 @@ function ecopilot_pickIcone($_class, $_value) {
 							<?php } ?>
 						</td></tr>
 					<tr><td>{{Énergie relevée}}</td>
-						<td><?php echo $dpe['kwh'] > 0 ? number_format($dpe['kwh'], 1, ',', ' ') . ' kWh ' . sprintf('sur %d jour(s)', $dpe['jours']) : '—'; ?>
-						<?php if (empty($dpe['general'])) { ?>
-						<button class="btn btn-xs btn-default bt_optiCompteurGeneral" title="{{Relier le compteur général de la maison}}"><i class="fas fa-link"></i> {{compteur général}}</button>
-						<span class="label label-warning">{{compteurs des sorties seulement}}</span>
-						<?php } else { ?>
-						<span class="label label-success">{{compteur général de la maison}}</span>
-						<select class="form-control input-sm ep_optiCompteurType" style="width:auto;display:inline-block;">
-							<option value="index" <?php echo ecopilot_opti::typeCompteurGeneral() == 'index' ? 'selected' : ''; ?>>{{index kWh/Wh}}</option>
-							<option value="puissance" <?php echo ecopilot_opti::typeCompteurGeneral() == 'puissance' ? 'selected' : ''; ?>>{{puissance W à intégrer}}</option>
-						</select>
-						<?php } ?></td></tr>
+						<td>
+							<?php echo $dpe['kwh'] > 0 ? number_format($dpe['kwh'], 1, ',', ' ') . ' kWh ' . sprintf('sur %d jour(s)', $dpe['jours']) : '—'; ?>
+							<?php if (($dpe['source'] ?? '') == 'releves') { ?>
+							<span class="label label-success">{{relevés du compteur}}</span>
+							<?php } elseif (($dpe['source'] ?? '') == 'sorties') { ?>
+							<span class="label label-warning">{{compteurs des sorties seulement}}</span>
+							<?php } ?>
+							<div style="margin-top:6px;">
+								<input type="date" class="form-control input-sm ep_releveDate" style="width:150px;display:inline-block;" value="<?php echo date('Y-m-d'); ?>">
+								<input type="number" step="0.1" class="form-control input-sm ep_releveKwh" style="width:120px;display:inline-block;" placeholder="kWh">
+								<button class="btn btn-sm btn-default bt_addReleve"><i class="fas fa-plus"></i> {{relevé du compteur}}</button>
+								<button class="btn btn-xs btn-default bt_optiCompteurGeneral" title="{{Relier une commande de compteur}}"><i class="fas fa-link"></i></button>
+							</div>
+							<?php $releves = ecopilot_opti::releves(); if (count($releves) > 0) { ?>
+							<div style="margin-top:6px;"><small>
+								{{relevés :}}
+								<?php foreach (array_slice($releves, -4) as $rel) { ?>
+								<span class="label label-default"><?php echo htmlspecialchars($rel['date']); ?> : <?php echo number_format($rel['kwh'], 0, ',', ' '); ?> kWh</span>
+								<button class="btn btn-xs btn-link bt_delReleve" data-date="<?php echo htmlspecialchars($rel['date']); ?>" title="{{Supprimer ce relevé}}">&times;</button>
+								<?php } ?>
+								<?php if (count($releves) < 2) { ?><br>{{il faut deux relevés pour calculer une consommation}}<?php } ?>
+							</small></div>
+							<?php } ?>
+						</td></tr>
 					<tr><td>{{Extrapolation annuelle}}</td>
 						<td><?php echo $dpe['kwh_an'] === null ? '—' : number_format($dpe['kwh_an'], 0, ',', ' ') . ' kWh/an'; ?></td></tr>
 					<tr><td>{{Énergie primaire}}</td>

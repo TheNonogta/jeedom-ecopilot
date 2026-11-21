@@ -1,5 +1,14 @@
 # Journal des modifications — Éco Pilot
 
+## 0.2.22 — 2026-11-06
+
+**Relevés manuels du compteur** dans le panneau Consommation réelle : une date et une valeur en kWh, et le plugin
+calcule la consommation entre deux relevés. Utile quand aucun compteur n'est exploitable dans Jeedom — un relevé de
+Linky ou du compteur général suffit, une fois par mois.
+
+La priorité des sources devient : compteur relié dans Jeedom, puis relevés manuels, puis somme des compteurs des
+sorties. L'interface indique laquelle a servi, et rappelle qu'il faut deux relevés pour obtenir une consommation.
+
 ## 0.2.21 — 2026-11-06
 
 Deux façons d'avoir plus d'historique, et donc des classes plus fiables.

@@ -959,6 +959,64 @@ class ecopilot_opti {
 		return array('kwh' => round($kwh, 3), 'jours' => $jours, 'depuis' => $debut);
 	}
 
+	/** Relevés manuels du compteur : liste de {date, kwh}, du plus ancien au plus récent. */
+	public static function releves() {
+		$liste = config::byKey('optiReleves', 'ecopilot', array());
+		if (!is_array($liste)) {
+			return array();
+		}
+		usort($liste, function ($a, $b) { return strcmp($a['date'], $b['date']); });
+		return $liste;
+	}
+
+	public static function ajouterReleve($_date, $_kwh) {
+		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $_date)) {
+			throw new Exception(__('Date invalide (AAAA-MM-JJ attendu)', __FILE__));
+		}
+		$kwh = floatval(str_replace(',', '.', $_kwh));
+		if ($kwh <= 0) {
+			throw new Exception(__('Valeur de compteur invalide', __FILE__));
+		}
+		$liste = self::releves();
+		foreach ($liste as $i => $releve) {
+			if ($releve['date'] == $_date) {
+				unset($liste[$i]); /* même date : on remplace */
+			}
+		}
+		$liste[] = array('date' => $_date, 'kwh' => $kwh);
+		usort($liste, function ($a, $b) { return strcmp($a['date'], $b['date']); });
+		config::save('optiReleves', array_values($liste), 'ecopilot');
+		return $liste;
+	}
+
+	public static function supprimerReleve($_date) {
+		$liste = array();
+		foreach (self::releves() as $releve) {
+			if ($releve['date'] != $_date) {
+				$liste[] = $releve;
+			}
+		}
+		config::save('optiReleves', $liste, 'ecopilot');
+		return $liste;
+	}
+
+	/** Consommation déduite de deux relevés manuels au moins : (dernier - premier) sur l'intervalle. */
+	public static function consoReleves() {
+		$liste = self::releves();
+		$n = count($liste);
+		if ($n < 2) {
+			return null;
+		}
+		$premier = $liste[0];
+		$dernier = $liste[$n - 1];
+		$jours = max(1, intval(round((strtotime($dernier['date']) - strtotime($premier['date'])) / 86400)));
+		$kwh = $dernier['kwh'] - $premier['kwh'];
+		if ($kwh < 0) {
+			return null; /* compteur remis à zéro ou remplacé */
+		}
+		return array('kwh' => round($kwh, 2), 'jours' => $jours, 'depuis' => $premier['date']);
+	}
+
 	public static function compteurGeneral() {
 		$id = intval(config::byKey('optiCompteurGeneral', 'ecopilot', 0));
 		return ($id > 0 && is_object(cmd::byId($id))) ? $id : 0;
@@ -990,6 +1048,13 @@ class ecopilot_opti {
 		}
 		$conso = self::consoRelevee();
 		$general = self::compteurGeneral();
+		$source = 'sorties';
+		/* priorité : compteur général relié, puis relevés manuels, puis somme des sorties */
+		$manuel = ($general <= 0) ? self::consoReleves() : null;
+		if ($manuel !== null) {
+			$conso = $manuel;
+			$source = 'releves';
+		}
 		$partiel = true;
 		if ($general > 0 && self::typeCompteurGeneral() == 'puissance') {
 			/* compteur en watts : on intègre la puissance pour obtenir des kWh */
@@ -1026,6 +1091,7 @@ class ecopilot_opti {
 			'source_surface' => $sourceSurface,
 			'kwh' => $conso['kwh'], 'jours' => $conso['jours'], 'depuis' => $conso['depuis'],
 			'general' => ($general > 0), 'partiel' => $partiel,
+			'source' => $source,
 			'kwh_an' => null, 'cep' => null, 'classe' => null);
 		if ($surface <= 0 || $conso['kwh'] <= 0 || $conso['jours'] <= 0) {
 			return $retour;

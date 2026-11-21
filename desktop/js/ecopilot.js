@@ -495,6 +495,25 @@ $(document).on('click', '.bt_optiCompteurGeneral', function () {
 	});
 });
 
+$(document).on('click', '.bt_addReleve', function () {
+	var date = $(this).siblings('.ep_releveDate').val();
+	var kwh = $(this).siblings('.ep_releveKwh').val();
+	if (!date || kwh === '') {
+		epAlert('{{Renseigne la date et la valeur du compteur}}', 'warning');
+		return;
+	}
+	epAjax({action: 'saveOptiReleve', date: date, kwh: kwh}, function () {
+		epAlert('{{Relevé enregistré}}');
+		epReload();
+	});
+});
+
+$(document).on('click', '.bt_delReleve', function () {
+	epAjax({action: 'supprimerOptiReleve', date: $(this).data('date')}, function () {
+		epReload();
+	});
+});
+
 $(document).on('change', '.ep_optiFenetre', function () {
 	epAjax({action: 'saveOptiFenetre', fenetre: $(this).val()}, function () {
 		epReload();
